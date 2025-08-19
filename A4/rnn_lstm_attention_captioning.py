@@ -176,7 +176,7 @@ def rnn_forward(x, h0, Wx, Wh, b):
     N,T,D = x.shape
     _,H = h0.shape
     prev_h = h0
-    h = torch.empty((N,T,H))
+    h = torch.empty((N,T,H), device=h0.device, dtype=h0.dtype)
     cache = []
     for i in range(T):
       xi = x[:,i,:]
