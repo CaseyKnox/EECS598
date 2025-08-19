@@ -378,7 +378,7 @@ class ResNet(nn.Module):
     layers = [ResNetStem(Cin, stage_args[0][0])]
     for args in stage_args:
       # args = (cin, cout, num_blocks, downsample)
-      args += block
+      args += tuple(block)
       layers.append(ResNetStage(*args))
     self.cnn = nn.Sequential(*layers)
     
