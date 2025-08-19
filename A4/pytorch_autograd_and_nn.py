@@ -320,14 +320,14 @@ class PlainBlock(nn.Module):
     # Store the result in self.net.                                            
     ############################################################################
     stride = 2 if downsample else 1
-    self.net = nn.Sequential([
+    self.net = nn.Sequential(
       nn.BatchNorm2d(Cin),
       nn.ReLU(),
       nn.Conv2d(Cin, Cout, 3, padding=1, stride=stride),
       nn.BatchNorm2d(Cout),
       nn.ReLU(),
       nn.Conv2d(Cout, Cout, 3, padding=1),
-    ])
+    )
     ############################################################################
     #                                 END OF YOUR CODE                         #
     ############################################################################
