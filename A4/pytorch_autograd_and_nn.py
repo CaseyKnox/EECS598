@@ -183,8 +183,8 @@ class ThreeLayerConvNet(nn.Module):
     # Hint: flatten (implemented at the start of part II)                          
     ############################################################################
     print(f"x shape", x.shape)
-    x = flatten(x)
-    print(f"xflat shape ", x.shape)
+    # x = flatten(x)
+    # print(f"xflat shape ", x.shape)
     x = self.conv1(x)
     print(f"conv1: x shape", x.shape)
     x = F.relu(x)
