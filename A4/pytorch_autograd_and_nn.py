@@ -123,7 +123,7 @@ def initialize_three_layer_conv_part2(dtype=torch.float, device='cpu'):
   conv_b2 = nn.init.zeros_(torch.empty(channel_2, dtype=dtype, device=device))
   conv_b2.requires_grad = True
 
-  fc_w = nn.init.kaiming_normal_(torch.empty(num_classes, channel_2, dtype=dtype, device=device))
+  fc_w = nn.init.kaiming_normal_(torch.empty(num_classes, channel_2*H*W, dtype=dtype, device=device))
   fc_w.requires_grad = True
   fc_b = nn.init.zeros_(torch.empty(num_classes, dtype=dtype, device=device))
   fc_b.requires_grad = True
