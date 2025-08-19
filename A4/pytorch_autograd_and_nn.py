@@ -319,8 +319,15 @@ class PlainBlock(nn.Module):
     # - downsample: add downsampling (a conv with stride=2) if True            
     # Store the result in self.net.                                            
     ############################################################################
-    # Replace "pass" statement with your code
-    pass
+    stride = 2 if downsample else 1
+    self.net = nn.Sequential([
+      nn.BatchNorm2d(Cin),
+      nn.ReLU(),
+      nn.Conv2d(Cin, Cout, 3, padding=1, stride=stride),
+      nn.BatchNorm2d(Cout),
+      nn.ReLU(),
+      nn.Conv2d(Cout, Cout, 3, padding=1),
+    ])
     ############################################################################
     #                                 END OF YOUR CODE                         #
     ############################################################################
