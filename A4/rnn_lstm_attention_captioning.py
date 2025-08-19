@@ -217,8 +217,12 @@ def rnn_backward(dh, cache):
     # sequence of data. You should use the rnn_step_backward function that you   #
     # defined above. You can use a for loop to help compute the backward pass.   #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    N,T,H = dh.shape
+    N,D = cache[0][0].shape # x
+    dx = torch.empty((N,T,D))
+    for i in range(T, -1, -1):
+      dnext_h = dh[:,i,:]
+      dx[:,i,:], dh0, dWx, dWh, db = rnn_step_backward(dnext_h, cache[i])
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
