@@ -101,11 +101,11 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
     # and cache variables respectively.                                          #
     # Hint: You can use torch.tanh()                                             #
     ##############################################################################
-    hidden_act = prev_h @ Wh
-    activations = x @ Wx
-    all_act = activations + hidden_act + b
-    next_h = torch.tanh(all_act)
-    cache = (hidden_act, activations, all_act, next_h)
+    hidden_act = prev_h @ Wh # (N,H)
+    activations = x @ Wx # (N,H)
+    all_act = activations + hidden_act + b # (N,H)
+    next_h = torch.tanh(all_act) # (N,H)
+    cache = (x, prev_h, Wx, Wh)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -134,8 +134,15 @@ def rnn_step_backward(dnext_h, cache):
     # HINT: For the tanh function, you can compute the local derivative in terms #
     # of the output value from tanh.                                             #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    x, prev_h, Wx, Wh = cache 
+    dall_act = 1 - torch.tanh(dnext_h)**2 # (N,H)
+    dact = dall_act # (N,H)
+    dh_act = dall_act # (N,H)
+    db = dall_act.sum(dim=0) # (H,)
+    dWx = x.T @ dact # (N,D) @ (N,H) -> (D,H)
+    dWh = prev_h.T @ dh_act # (N,H) @ (N,H) -> (H,H)
+    dx = dact @ Wx.T # (N,H)@(D,H)-> (N,D)
+    dprev_h = dh_act @ Wh.T # (N,H) @ (H,H) -> (N,H)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
