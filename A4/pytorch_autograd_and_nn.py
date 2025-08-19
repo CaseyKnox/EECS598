@@ -452,6 +452,8 @@ class ResidualBottleneckBlock(nn.Module):
     ############################################################################
 
   def forward(self, x):
+    test = self.block(x)
+    print(test.shape)
     return self.block(x) + self.shortcut(x)
 
 ##############################################################################
