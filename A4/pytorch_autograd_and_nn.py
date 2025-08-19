@@ -429,8 +429,24 @@ class ResidualBottleneckBlock(nn.Module):
     # - downsample: add downsampling (a conv with stride=2) if True            #
     # Store the main block in self.block and the shortcut in self.shortcut.    #
     ############################################################################
-    # Replace "pass" statement with your code
-    pass
+    stride = 2 if downsample else 1
+    self.block = nn.Sequential(
+      nn.BatchNorm2d(Cin),
+      nn.ReLU(),
+      nn.Conv2d(Cin, Cout // 4, 1, stride=stride),
+      nn.BatchNorm2d(Cout//4),
+      nn.ReLU(),
+      nn.Conv2d(Cout // 4, Cout // 4, 3, padding=1),
+      nn.BatchNorm2d(Cout//4),
+      nn.ReLU(),
+      nn.Conv2d(Cout, Cout // 4, 1)
+    )
+    if Cin == Cout:
+      self.shortcut = nn.Identity()
+    elif Cin != Cout and not downsample:
+      self.shortcut = nn.Conv2d(Cin, Cout, 1, stride=1)
+    else: # Cin != Cout and downsample
+      self.shortcut = nn.Conv2d(Cin, Cout, 1, stride=2)
     ############################################################################
     #                                 END OF YOUR CODE                         #
     ############################################################################
