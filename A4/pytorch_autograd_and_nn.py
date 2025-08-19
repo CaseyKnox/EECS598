@@ -224,8 +224,9 @@ def initialize_three_layer_conv_part3():
   # You should train the model using stochastic gradient descent without       
   # momentum, with L2 weight decay of 1e-4.                    
   ##############################################################################
-  # Replace "pass" statement with your code
-  pass
+  model = ThreeLayerConvNet(C, channel_1, channel_2, num_classes)
+  optimizer = optim.SGD(model.parameters(), lr=learning_rate,
+                        weight_decay=weight_decay)
   ##############################################################################
   #                                 END OF YOUR CODE                            
   ##############################################################################
