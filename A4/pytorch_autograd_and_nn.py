@@ -21,7 +21,6 @@ def hello():
 ################################################################################
 # Part II. Barebones PyTorch                         
 ################################################################################
-################################################################################
 # Before we start, we define the flatten function for your convenience.
 def flatten(x, start_dim=1, end_dim=-1):
   return x.flatten(start_dim=start_dim, end_dim=end_dim)
