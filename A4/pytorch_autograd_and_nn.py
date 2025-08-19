@@ -283,8 +283,17 @@ def initialize_three_layer_conv_part4():
   # momentum 0.5, with L2 weight decay of 1e-4 as given in the variables above.   
   # Hint: nn.Sequential, Flatten (implemented at the start of Part IV)   
   ####################################################################################
-  # Replace "pass" statement with your code
-  pass
+  model = nn.Sequential((OrderedDict([
+    ('conv1', nn.Conv2d(C, channel_1, kernel_size_1, padding=pad_size_1)),
+    ('relu1', nn.ReLU()),
+    ('conv2', nn.Conv2d(channel_1, channel_2, kernel_size_2, padding=pad_size_2)),
+    ('relu2', nn.ReLU()),
+    ('flatten', Flatten()),
+    ('fc1', nn.Linear(channel_2*H*W, num_classes)),
+  ])))
+  optimizer = optim.SGD(model.parameters(), lr=learning_rate,
+                        weight_decay=weight_decay,
+                        momentum=momentum, nesterov=True)
   ################################################################################
   #                                 END OF YOUR CODE                             
   ################################################################################
