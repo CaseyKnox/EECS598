@@ -220,7 +220,7 @@ def rnn_backward(dh, cache):
     N,T,H = dh.shape
     N,D = cache[0][0].shape # x
     dx = torch.empty((N,T,D))
-    for i in range(T, -1, -1):
+    for i in range(T-1, -1, -1):
       dnext_h = dh[:,i,:]
       dx[:,i,:], dh0, dWx, dWh, db = rnn_step_backward(dnext_h, cache[i])
     ##############################################################################
