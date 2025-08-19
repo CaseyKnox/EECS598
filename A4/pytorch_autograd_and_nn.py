@@ -375,8 +375,13 @@ class ResNet(nn.Module):
     #       ResNetStage, and wrap the modules by nn.Sequential.                #
     # Store the model in self.cnn.                                             #
     ############################################################################
-    # Replace "pass" statement with your code
-    pass
+    layers = [ResNetStem(Cin, stage_args[0][0])]
+    for args in stage_args:
+      # args = (cin, cout, num_blocks, downsample)
+      args += block
+      layers.append(ResNetStage(*args))
+    self.cnn = nn.Sequential(*layers)
+    
     ############################################################################
     #                                 END OF YOUR CODE                         #
     ############################################################################
@@ -388,8 +393,11 @@ class ResNet(nn.Module):
     # TODO: Implement the forward function of ResNet.                          #
     # Store the output in `scores`.                                            #
     ############################################################################
-    # Replace "pass" statement with your code
-    pass
+    print(f"x shape", x.shape)
+    x = self.cnn(x)
+    print(f"cnn: shape", x.shape)
+    scores = self.fc(x)
+    print(f"fc: shape", scores.shape)
     ############################################################################
     #                                 END OF YOUR CODE                         #
     ############################################################################
