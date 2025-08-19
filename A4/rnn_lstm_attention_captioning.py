@@ -181,6 +181,7 @@ def rnn_forward(x, h0, Wx, Wh, b):
     for i in range(T):
       xi = x[:,i,:]
       next_h, cache_i = rnn_step_forward(xi, prev_h, Wx, Wh, b)
+      prev_h = next_h
       h[:,i,:] = next_h
       cache.append(cache_i)
     # h = torch.stack(h).permute((1,0,2))
