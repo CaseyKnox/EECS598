@@ -160,9 +160,10 @@ class ThreeLayerConvNet(nn.Module):
     #                                         
     # HINT: nn.Conv2d, nn.init.kaiming_normal_, nn.init.zeros_            
     ############################################################################
+    H = W = 32
     self.conv1 = nn.Conv2d(in_channel, channel_1, 5, padding=2)
     self.conv2 = nn.Conv2d(channel_1, channel_2, 3, padding=1)
-    self.fc1 = nn.Linear(channel_2, num_classes)
+    self.fc1 = nn.Linear(channel_2*H*W, num_classes)
 
     nn.init.kaiming_normal_(self.conv1.weight)
     nn.init.kaiming_normal_(self.conv2.weight)
