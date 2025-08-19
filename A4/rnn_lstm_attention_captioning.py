@@ -101,8 +101,11 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
     # and cache variables respectively.                                          #
     # Hint: You can use torch.tanh()                                             #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    hidden_act = prev_h @ Wh
+    activations = x @ Wx
+    all_act = activations + hidden_act + b
+    next_h = torch.tanh(all_act)
+    cache = (hidden_act, activations, all_act, next_h)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
