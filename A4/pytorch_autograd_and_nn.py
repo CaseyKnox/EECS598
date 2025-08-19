@@ -437,9 +437,9 @@ class ResidualBottleneckBlock(nn.Module):
       nn.BatchNorm2d(Cout//4),
       nn.ReLU(),
       nn.Conv2d(Cout // 4, Cout // 4, 3, padding=1),
-      # nn.BatchNorm2d(Cout//4),
-      # nn.ReLU(),
-      # nn.Conv2d(Cout, Cout // 4, 1)
+      nn.BatchNorm2d(Cout//4),
+      nn.ReLU(),
+      nn.Conv2d(Cout // 4, Cout, 1)
     )
     if Cin == Cout:
       self.shortcut = nn.Identity()
