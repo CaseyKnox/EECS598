@@ -183,7 +183,7 @@ def rnn_forward(x, h0, Wx, Wh, b):
       next_h, cache_i = rnn_step_forward(xi, prev_h, Wx, Wh, b)
       h.append(next_h)
       cache.append(cache_i)
-    h = torch.stack(h).permute((0,2,1))
+    h = torch.stack(h).permute((1,0,2))
     assert h.shape == (N,T,H), f"h.shape {h.shape} != ({N},{T},{H})"
     ##############################################################################
     #                               END OF YOUR CODE                             #
