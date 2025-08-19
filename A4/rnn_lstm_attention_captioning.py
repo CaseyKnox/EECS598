@@ -173,8 +173,18 @@ def rnn_forward(x, h0, Wx, Wh, b):
     # input data. You should use the rnn_step_forward function that you defined  #
     # above. You can use a for loop to help compute the forward pass.            #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    N,T,D = x.shape
+    _,H = h0.shape
+    prev_h = h0
+    h = []
+    cache = []
+    for i in range(T):
+      xi = x[:,i,:]
+      next_h, cache_i = rnn_step_forward(xi, prev_h, Wx, Wh, b)
+      h.append(next_h)
+      cache.append(cache_i)
+    h = torch.stack(h).permute((0,2,1))
+    assert torch.all(h.shape == [N,T,H]), f"h.shape {h.shape} != ({N},{T},{H})"
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
