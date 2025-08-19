@@ -183,17 +183,17 @@ class ThreeLayerConvNet(nn.Module):
     # connectivity of those layers in forward()   
     # Hint: flatten (implemented at the start of part II)                          
     ############################################################################
-    print(f"x shape", x.shape)
+    # print(f"x shape", x.shape)
     # x = flatten(x)
     # print(f"xflat shape ", x.shape)
     x = self.conv1(x)
-    print(f"conv1: x shape", x.shape)
+    # print(f"conv1: x shape", x.shape)
     x = F.relu(x)
     x = self.conv2(x)
-    print(f"conv2: x shape", x.shape)
+    # print(f"conv2: x shape", x.shape)
     x = F.relu(flatten(x))
     scores = self.fc1(x)
-    print(f"fc1: shape", scores.shape)
+    # print(f"fc1: shape", scores.shape)
     ############################################################################
     #                            END OF YOUR CODE                          
     ############################################################################
