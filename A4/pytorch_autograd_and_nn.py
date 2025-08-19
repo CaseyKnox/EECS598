@@ -396,7 +396,7 @@ class ResNet(nn.Module):
     print(f"x shape", x.shape)
     x = self.cnn(x)
     print(f"cnn: shape", x.shape)
-    x = Flatten(x)
+    x = flatten(x)
     print(f"flatten: shape", x.shape)
     scores = self.fc(x)
     print(f"fc: shape", scores.shape)
