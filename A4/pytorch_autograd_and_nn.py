@@ -400,15 +400,15 @@ class ResNet(nn.Module):
     pool_size = (H // 2**self.num_downsamples, W // 2**self.num_downsamples)
     self.maxpool = nn.AvgPool2d(pool_size)
 
-    print(f"x shape", x.shape)
+    # print(f"x shape", x.shape)
     x = self.cnn(x)
-    print(f"cnn: shape", x.shape)
+    # print(f"cnn: shape", x.shape)
     x = self.maxpool(x)
-    print(f"maxpool: shape", x.shape)
+    # print(f"maxpool: shape", x.shape)
     x = flatten(x)
-    print(f"flatten: shape", x.shape)
+    # print(f"flatten: shape", x.shape)
     scores = self.fc(x)
-    print(f"fc: shape", scores.shape)
+    # print(f"fc: shape", scores.shape)
     ############################################################################
     #                                 END OF YOUR CODE                         #
     ############################################################################
