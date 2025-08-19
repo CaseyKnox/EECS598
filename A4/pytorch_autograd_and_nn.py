@@ -397,7 +397,7 @@ class ResNet(nn.Module):
     # Store the output in `scores`.                                            #
     ############################################################################
     N,C,H,W = x.shape
-    pool_size = (H / 2**self.num_downsamples, W / 2**self.num_downsamples)
+    pool_size = (H // 2**self.num_downsamples), W // 2**self.num_downsamples)
     self.maxpool = nn.AvgPool2d(pool_size)
 
     print(f"x shape", x.shape)
