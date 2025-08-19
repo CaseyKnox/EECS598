@@ -350,8 +350,13 @@ class ResidualBlock(nn.Module):
     # - downsample: add downsampling (a conv with stride=2) if True            #
     # Store the main block in self.block and the shortcut in self.shortcut.    #
     ############################################################################
-    # Replace "pass" statement with your code
-    pass
+    self.block = PlainBlock(Cin, Cout, downsample)
+    if Cin == Cout:
+      self.shortcut = nn.Identity()
+    elif Cin != Cout and not downsample:
+      self.shortcut = nn.Conv2d(Cin, Cout, 1, stride=1)
+    else: # Cin != Cout and downsample
+      self.shortcut = nn.Conv2d(Cin, Cout, 1, stride=2)
     ############################################################################
     #                                 END OF YOUR CODE                         #
     ############################################################################
