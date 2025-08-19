@@ -190,7 +190,7 @@ class ThreeLayerConvNet(nn.Module):
     x = F.relu(x)
     x = self.conv2(x)
     print(f"conv2: x shape", x.shape)
-    x = F.relu(x)
+    x = F.relu(flatten(x))
     scores = self.fc1(x)
     print(f"fc1: shape", scores.shape)
     ############################################################################
