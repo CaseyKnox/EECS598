@@ -697,7 +697,7 @@ def lstm_forward(x, h0, Wx, Wh, b):
 
     h = torch.empty((N,T,H), dtype=x.dtype, device=x.device)
     for i in range(T):
-      next_h, next_c = lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b)
+      next_h, next_c = lstm_step_forward(x[:,i,:], prev_h, prev_c, Wx, Wh, b)
       h[:,i,:] = next_h # (N,i,H)
       prev_h = next_h
       prev_c = next_c
