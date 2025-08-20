@@ -596,11 +596,11 @@ class CaptioningRNN(nn.Module):
           emb = self.emb(captions) # (N, T, W)
           hs = self.model.forward(emb, h0) # (N, T, H)
           scores = self.fc2.forward(hs[:,-1,:])
-          print("scores", scores.shape)
-          print(f"vocab_size", self.vocab_size)
+          # print("scores", scores.shape)
+          # print(f"vocab_size", self.vocab_size)
           word = torch.argmax(scores)
-          if self._end == word:
-            break
+          # if self._end == word:
+          #   break
           captions = torch.roll(captions, shifts=-1)
           captions[-1] = word
         ############################################################################
