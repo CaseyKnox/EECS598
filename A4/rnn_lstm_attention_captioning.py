@@ -449,7 +449,7 @@ class CaptioningRNN(nn.Module):
         self.wordvec_dim = wordvec_dim
         if cell_type == 'rnn':
           self.feat = FeatureExtractor(pooling=True, device=device, dtype=dtype)
-          self.model = RNN(input_dim, hidden_dim, device=device, dtype=dtype)
+          self.model = RNN(1280, hidden_dim, device=device, dtype=dtype)
           self.fc1 = nn.Linear(1280, self.hidden_dim, device=device, dtype=dtype)
           self.emb = WordEmbedding(vocab_size, wordvec_dim, device=device, dtype=dtype)
           self.fc2 = nn.Linear(hidden_dim, vocab_size, device=device, dtype=dtype)
