@@ -328,8 +328,7 @@ class WordEmbedding(nn.Module):
       #                                                                            #
       # HINT: This can be done in one line using PyTorch's array indexing.           #
       ##############################################################################
-      # Replace "pass" statement with your code
-      pass
+      out = self.W_embed[x]
       ##############################################################################
       #                               END OF YOUR CODE                             #
       ##############################################################################
