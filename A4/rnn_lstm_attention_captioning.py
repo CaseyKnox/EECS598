@@ -649,10 +649,10 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b, attn=None, Wattn=None):
 
     H4 = a.shape[-1]
     H = H4 // 4
-    ai = a[:H]
-    af = a[H:2*H]
-    ao = a[2*H:3*H]
-    ag = a[3*H:]
+    ai = a[:, :H] # (N,H)
+    af = a[:, H:2*H] # (N,H)
+    ao = a[:, 2*H:3*H] # (N,H)
+    ag = a[:, 3*H:] # (N,H)
     print("ai", ai.shape)
     print("af", af.shape)
     print("ao", ao.shape)
