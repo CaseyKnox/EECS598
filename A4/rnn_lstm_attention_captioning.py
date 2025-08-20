@@ -656,6 +656,10 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b, attn=None, Wattn=None):
     f = torch.sigmoid(af)
     o = torch.sigmoid(ao)
     g = torch.tanh(ag)
+    print("i", i.shape)
+    print("f", f.shape)
+    print("o", o.shape)
+    print("g", g.shape)
 
     next_c = f * prev_c + i * g
     next_h = o * torch.tanh(next_c)
