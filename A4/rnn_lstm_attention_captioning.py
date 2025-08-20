@@ -596,9 +596,13 @@ class CaptioningRNN(nn.Module):
           
           prev_word = torch.full((N,), self._start, device=images.device, dtype=torch.long) # (N,)
           h = h0
+          c = torch.zeroes_like(h0)
           for i in range(max_length):
             emb = self.emb(prev_word) # (N, W)
-            h = self.model.step_forward(emb, h) # (N, H)
+            if self.cell_type == "rnn":
+              h = self.model.step_forward(emb, h) # (N, H)
+            elif self.cell_type == "lstm":
+              h, c = self.model.step_forward(emb, h, c) # (N, H)
             scores = self.fc2.forward(h) # (N,V)
             # print("scores", scores.shape)
             # print(f"vocab_size", self.vocab_size)
