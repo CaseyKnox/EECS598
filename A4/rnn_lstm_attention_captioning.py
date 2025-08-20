@@ -328,6 +328,8 @@ class WordEmbedding(nn.Module):
       #                                                                            #
       # HINT: This can be done in one line using PyTorch's array indexing.           #
       ##############################################################################
+      print(x.shape)
+      print(self.W_embed.shape)
       out = self.W_embed[x]
       ##############################################################################
       #                               END OF YOUR CODE                             #
