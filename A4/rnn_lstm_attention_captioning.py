@@ -856,7 +856,8 @@ def attention_forward(x, A, Wx, Wh, Wattn, b):
 
     h = torch.empty((N,T,H), dtype=x.dtype, device=x.device)
     for i in range(T):
-      attn, Wattn = dot_product_attention(prev_h, A)
+      attn, attn_weights = dot_product_attention(prev_h, A) # (N,H), (N,4,4)
+
       prev_h, prev_c = lstm_step_forward(x[:,i,:], prev_h, prev_c, Wx, Wh, b, attn, Wattn)
       h[:,i,:] = prev_h
     ##############################################################################
