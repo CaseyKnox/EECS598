@@ -328,8 +328,8 @@ class WordEmbedding(nn.Module):
       #                                                                            #
       # HINT: This can be done in one line using PyTorch's array indexing.           #
       ##############################################################################
-      print(x.shape)
-      print(self.W_embed.shape)
+      # print(x.shape)
+      # print(self.W_embed.shape)
       out = self.W_embed[x]
       ##############################################################################
       #                               END OF YOUR CODE                             #
@@ -442,8 +442,18 @@ class CaptioningRNN(nn.Module):
         # Hint: In FeatureExtractor, set pooling=True to get the pooled CNN      #
         #       feature and pooling=False to get the CNN activation map.         #
         ##########################################################################
-        # Replace "pass" statement with your code
-        pass
+        self.hidden_dim = hidden_dim
+        self.device = device
+        self.dtype = dtype
+        self.vocab_size = vocab_size
+        if cell_type == 'rnn':
+          self.feat = FeatureExtractor(pooling=True, device=device, dtype=dtype)
+          self.model = RNN(input_dim, hidden_dim, device=device, dtype=dtype)
+          self.fc1 = nn.Linear(1280, self.hidden_dim, device=device, dtype=dtype)
+          self.emb = WordEmbedding(vocab_size, wordvec_dim, device=device, dtype=dtype)
+          self.fc2 = nn.Linear(vocab_size, device=device, dtype=dtype)
+        else:
+          raise ValueError(f"Unsupported cell type: {cell_type}")
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
@@ -492,8 +502,18 @@ class CaptioningRNN(nn.Module):
         #                                                                          #
         # Do not worry about regularizing the weights or their gradients!          #
         ############################################################################
-        # Replace "pass" statement with your code
-        pass
+        N,C,_,_ = images.shape
+        _,T = captions_in.shape
+        features = self.feat.extract_mobilenet_feature(images) # (N,1280)
+        h0 = self.affine.forward(features) # (N, H)
+        emb = self.emb(captions_in) # (N,T,W)
+        scores = torch.empty((N,T,self.vocab_size), dtype=self.dtype, device=self.device)
+        hs = self.model.forward(emb, h0) # (N,T,H)
+        for i in range(T):
+          scores[:,i,:] = self.fc2.forward(hs[:,i,:])
+        
+        loss = temporal_softmax_loss(scores, captions_out, self.ignore_index)
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
