@@ -583,8 +583,24 @@ class CaptioningRNN(nn.Module):
         # $A$ of shape Hx4x4. The LSTM initial hidden state and cell state        #
         # would both be A.mean(dim=(2, 3)).                                       #
         ###########################################################################
-        # Replace "pass" statement with your code
-        pass
+        N,C,_,_ = images.shape
+        features = self.feat.extract_mobilenet_feature(images) # (N,1280)
+        h0 = self.fc1.forward(features) # (N, H)
+        # print(f"N, T, W", N, T, self.wordvec_dim)
+        # print(f"H", self.hidden_dim)
+        # print(f"emb shape:", emb.shape)
+        # print(f"h0 shape", h0.shape)
+        captions[-1] = self._start
+
+        for _ in range(max_length):
+          emb = self.emb(captions) # (N, T, W)
+          hs = self.model.forward(emb, h0) # (N, T, H)
+          scores = self.fc2.forward(hs[:,-1,:])
+          word = torch.argmax(scores)
+          if self.word_to_idx[word] == self._end:
+            break
+          captions = torch.roll(captions, shifts=-1)
+          captions[-1] = word
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
