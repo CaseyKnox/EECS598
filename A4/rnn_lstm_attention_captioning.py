@@ -849,8 +849,16 @@ def attention_forward(x, A, Wx, Wh, Wattn, b):
     # You should use the lstm_step_forward function and dot_product_attention   #
     # function that you just defined.                                           #
     #############################################################################
-    # Replace "pass" statement with your code
-    pass
+    N,T,D = x.shape
+    _,H,_,_ = A.shape
+    prev_h = h0
+    prev_c = c0
+
+    h = torch.empty((N,T,H), dtype=x.dtype, device=x.device)
+    for i in range(T):
+      attn, Wattn = dot_product_attention(prev_h, A)
+      prev_h, prev_c = lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b, attn, Wattn)
+      h[:,i,:] = prev_h
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
