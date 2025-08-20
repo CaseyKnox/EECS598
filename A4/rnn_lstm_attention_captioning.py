@@ -505,13 +505,13 @@ class CaptioningRNN(nn.Module):
         ############################################################################
         N,C,_,_ = images.shape
         _,T = captions_in.shape
-        print(f"N, T, W", N, T, self.wordvec_dim)
-        print(f"H", self.hidden_dim)
+        # print(f"N, T, W", N, T, self.wordvec_dim)
+        # print(f"H", self.hidden_dim)
         features = self.feat.extract_mobilenet_feature(images) # (N,1280)
         h0 = self.fc1.forward(features) # (N, H)
         emb = self.emb(captions_in) # (N,T,W)
-        print(f"emb shape:", emb.shape)
-        print(f"h0 shape", h0.shape)
+        # print(f"emb shape:", emb.shape)
+        # print(f"h0 shape", h0.shape)
         hs = self.model.forward(emb, h0) # (N,T,H)
 
         scores = torch.empty((N,T,self.vocab_size), dtype=self.dtype, device=self.device)
