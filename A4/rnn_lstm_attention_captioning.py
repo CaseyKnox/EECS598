@@ -583,27 +583,28 @@ class CaptioningRNN(nn.Module):
         # $A$ of shape Hx4x4. The LSTM initial hidden state and cell state        #
         # would both be A.mean(dim=(2, 3)).                                       #
         ###########################################################################
-        N,C,_,_ = images.shape
-        features = self.feat.extract_mobilenet_feature(images) # (N,1280)
-        h0 = self.fc1.forward(features) # (N, H)
-        # print(f"N, T, W", N, T, self.wordvec_dim)
-        # print(f"H", self.hidden_dim)
-        # print(f"emb shape:", emb.shape)
-        # print(f"h0 shape", h0.shape)
-
-        prev_word = torch.full((N,), self._start, device=images.device, dtype=torch.long) # (N,)
-        h = h0
-        for i in range(max_length):
-          emb = self.emb(prev_word) # (N, W)
-          h = self.model.step_forward(emb, h) # (N, H)
-          scores = self.fc2.forward(h)
-          # print("scores", scores.shape)
-          # print(f"vocab_size", self.vocab_size)
-          word = torch.argmax(scores)
-          # if self._end == word:
-          #   break
-          captions[:, i] = word
-          prev_word = word
+        with torch.no_grad():
+          N,C,_,_ = images.shape
+          features = self.feat.extract_mobilenet_feature(images) # (N,1280)
+          h0 = self.fc1.forward(features) # (N, H)
+          # print(f"N, T, W", N, T, self.wordvec_dim)
+          # print(f"H", self.hidden_dim)
+          # print(f"emb shape:", emb.shape)
+          # print(f"h0 shape", h0.shape)
+          
+          prev_word = torch.full((N,), self._start, device=images.device, dtype=torch.long) # (N,)
+          h = h0
+          for i in range(max_length):
+            emb = self.emb(prev_word) # (N, W)
+            h = self.model.step_forward(emb, h) # (N, H)
+            scores = self.fc2.forward(h) # (N,V)
+            # print("scores", scores.shape)
+            # print(f"vocab_size", self.vocab_size)
+            word = torch.argmax(scores, dim=1)
+            # if self._end == word:
+            #   break
+            captions[:, i] = word
+            prev_word = word
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
