@@ -374,8 +374,7 @@ def temporal_softmax_loss(x, y, ignore_index=None):
     # We use a cross-entropy loss at each timestep, *summing* the loss over      #
     # all timesteps and *averaging* across the minibatch.                        #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    loss = F.cross_entropy(x, y, reduction="sum", ignore_index=ignore_index)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
