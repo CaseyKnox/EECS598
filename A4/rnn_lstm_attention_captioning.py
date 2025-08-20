@@ -590,19 +590,20 @@ class CaptioningRNN(nn.Module):
         # print(f"H", self.hidden_dim)
         # print(f"emb shape:", emb.shape)
         # print(f"h0 shape", h0.shape)
-        captions[-1] = self._start
 
-        for _ in range(max_length):
-          emb = self.emb(captions) # (N, T, W)
-          hs = self.model.forward(emb, h0) # (N, T, H)
-          scores = self.fc2.forward(hs[:,-1,:])
+        prev_word = torch.full((N,), self._start, device=images.device, dtype=images.dtype) # (N,)
+        h = h0
+        for i in range(max_length):
+          emb = self.emb(prev_word) # (N, W)
+          h = self.model.step_forward(emb, h) # (N, H)
+          scores = self.fc2.forward(h)
           # print("scores", scores.shape)
           # print(f"vocab_size", self.vocab_size)
           word = torch.argmax(scores)
           # if self._end == word:
           #   break
-          captions = torch.roll(captions, shifts=-1)
-          captions[-1] = word
+          captions[:, i] = word
+          prev_word = word
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
