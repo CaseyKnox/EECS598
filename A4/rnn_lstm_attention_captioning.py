@@ -690,8 +690,18 @@ def lstm_forward(x, h0, Wx, Wh, b):
     # TODO: Implement the forward pass for an LSTM over an entire timeseries.   #
     # You should use the lstm_step_forward function that you just defined.       #
     #############################################################################
-    # Replace "pass" statement with your code
-    pass
+    N,T,D = x.shape
+    H = Wh.shape[0]
+    prev_h = h0 # (N,H)
+    prev_c = c0
+
+    h = torch.empty((N,T,H), dtype=x.dtype, device=x.device)
+    for i in range(T):
+      next_h, next_c = lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b)
+      h[:,i,:] = next_h # (N,i,H)
+      prev_h = next_h
+      prev_c = next_c
+
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
