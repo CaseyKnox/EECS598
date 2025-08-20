@@ -591,7 +591,7 @@ class CaptioningRNN(nn.Module):
         # print(f"emb shape:", emb.shape)
         # print(f"h0 shape", h0.shape)
 
-        prev_word = torch.full((N,), self._start, device=images.device, dtype=images.dtype) # (N,)
+        prev_word = torch.full((N,), self._start, device=images.device, dtype=torch.long) # (N,)
         h = h0
         for i in range(max_length):
           emb = self.emb(prev_word) # (N, W)
