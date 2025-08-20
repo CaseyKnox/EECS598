@@ -645,27 +645,14 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b, attn=None, Wattn=None):
     # You may want to use torch.sigmoid() for the sigmoid function.             #
     #############################################################################
     a = x @ Wx + prev_h @ Wh + b # (N,4H) + (N,4H) + (4H) -> (N,4H)
-    print("a", a.shape)
 
-    H4 = a.shape[-1]
-    H = H4 // 4
-    ai = a[:, :H] # (N,H)
-    af = a[:, H:2*H] # (N,H)
-    ao = a[:, 2*H:3*H] # (N,H)
-    ag = a[:, 3*H:] # (N,H)
-    print("ai", ai.shape)
-    print("af", af.shape)
-    print("ao", ao.shape)
-    print("ag", ag.shape)
+    # chunk up (N, 4H) -> (N,H)
+    ai, af, ao, ag = torch.chunk(a, 4, dim=1) # (N, H)
 
     i = torch.sigmoid(ai)
     f = torch.sigmoid(af)
     o = torch.sigmoid(ao)
     g = torch.tanh(ag)
-    print("i", i.shape)
-    print("f", f.shape)
-    print("o", o.shape)
-    print("g", g.shape)
 
     next_c = f * prev_c + i * g
     next_h = o * torch.tanh(next_c)
