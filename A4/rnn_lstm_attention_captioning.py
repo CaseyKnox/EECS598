@@ -793,8 +793,13 @@ def dot_product_attention(prev_h, A):
     # You will use this function for `attention_forward` and `sample_caption`   #
     # HINT: Make sure you reshape attn_weights back to (N, 4, 4)!               #
     #############################################################################
-    # Replace "pass" statement with your code
-    pass
+    A_flat = A.view(N,H,-1)
+    logits = torch.bmm(prev_h.unsqueeze(1), A_flat) # (N,1,16)
+    logits /= math.sqrt(H) # (N, 1, 16)
+    weights = torch.softmax(logits.squeeze(1), dim=0) # (N,16)
+    attn_weights = weights.view((N,4,4))
+    attn = torch.bmm(A_flat, weights.unsqueeze(2)) # (H,16) @ (16,1)
+    attn = attn.squeeze(2)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
