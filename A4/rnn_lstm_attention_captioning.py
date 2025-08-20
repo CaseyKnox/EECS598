@@ -599,7 +599,7 @@ class CaptioningRNN(nn.Module):
           print("scores", scores.shape)
           print(f"vocab_size", self.vocab_size)
           word = torch.argmax(scores)
-          if self.word_to_idx[word] == self._end:
+          if self.word_to_idx[self._end] == word:
             break
           captions = torch.roll(captions, shifts=-1)
           captions[-1] = word
