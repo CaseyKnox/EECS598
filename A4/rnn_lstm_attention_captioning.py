@@ -644,8 +644,21 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b, attn=None, Wattn=None):
     # TODO: Implement the forward pass for a single timestep of an LSTM.        #
     # You may want to use torch.sigmoid() for the sigmoid function.             #
     #############################################################################
-    # Replace "pass" statement with your code
-    pass
+    a = x @ Wx + prev_h @ Wh + b # (N,4H) + (N,4H) + (4H) -> (N,4H)
+    H4 = a.shape[-1]
+    H = H4 // 4
+    ai = a[:H]
+    af = a[H:2*H]
+    ao = a[2*H:3*H]
+    ag = a[3*H:]
+
+    i = torch.sigmoid(ai)
+    f = torch.sigmoid(af)
+    o = torch.sigmoid(ao)
+    g = torch.tanh(ag)
+
+    next_c = f * prev_c + i * g
+    next_h = o * torch.tanh(next_c)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
