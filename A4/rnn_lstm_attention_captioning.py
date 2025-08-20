@@ -505,7 +505,7 @@ class CaptioningRNN(nn.Module):
         N,C,_,_ = images.shape
         _,T = captions_in.shape
         features = self.feat.extract_mobilenet_feature(images) # (N,1280)
-        h0 = self.affine.forward(features) # (N, H)
+        h0 = self.fc1.forward(features) # (N, H)
         emb = self.emb(captions_in) # (N,T,W)
         scores = torch.empty((N,T,self.vocab_size), dtype=self.dtype, device=self.device)
         hs = self.model.forward(emb, h0) # (N,T,H)
