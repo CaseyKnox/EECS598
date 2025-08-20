@@ -651,6 +651,8 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b, attn=None, Wattn=None):
     # You may want to use torch.sigmoid() for the sigmoid function.             #
     #############################################################################
     a = x @ Wx + prev_h @ Wh + b # (N,4H) + (N,4H) + (4H) -> (N,4H)
+    if attn is not None:
+      a += attn @ Wattn
 
     # chunk up (N, 4H) -> (N,H)
     ai, af, ao, ag = torch.chunk(a, 4, dim=1) # (N, H)
