@@ -596,7 +596,7 @@ class CaptioningRNN(nn.Module):
           
           prev_word = torch.full((N,), self._start, device=images.device, dtype=torch.long) # (N,)
           h = h0
-          c = torch.zeroes_like(h0)
+          c = torch.zeros_like(h0)
           for i in range(max_length):
             emb = self.emb(prev_word) # (N, W)
             if self.cell_type == "rnn":
