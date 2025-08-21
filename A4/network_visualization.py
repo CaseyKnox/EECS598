@@ -92,8 +92,15 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
   # attack in fewer than 100 iterations of gradient ascent.                    #
   # You can print your progress over iterations to check your algorithm.       #
   ##############################################################################
-  # Replace "pass" statement with your code
-  pass
+  for i in range(max_iter):
+    y_pred = model.forward(X_adv)
+    loss = F.cross_entropy(y_pred, target_y)
+    loss.backward()
+    g = X_adv.grad.data
+    dX = learning_rate * g / torch.norm(g, p=2)
+    X_adv += dX
+    if verbose:
+      print(f"Iter {i:04}/{max_iter} | Loss : {loss:.3f} | ")
   ##############################################################################
   #                             END OF YOUR CODE                               #
   ##############################################################################
