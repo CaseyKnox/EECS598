@@ -51,7 +51,7 @@ def compute_saliency_maps(X, y, model):
   y_pred = model.forward(X)
   loss = F.cross_entropy(y_pred, y, reduction="sum")
   loss.backward()
-  saliency = torch.abs(X.grad.data).max(dim=0).values # maximum along channel dimension
+  saliency = torch.abs(X.grad.data).max(dim=1).values # maximum along channel dimension
   assert saliency.shape == (N,H,W), f"N,H,W == {N},{H},{W} != saliency {saliency.shape}"
   ##############################################################################
   #               END OF YOUR CODE                                             #
