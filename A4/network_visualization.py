@@ -102,8 +102,7 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
     if target_score > max_score:
       break
 
-    y = torch.zeros_like(y_pred)
-    y[:, target_y] = 1
+    y = torch.tensor([target_y], device=y_pred.device)
     loss = F.cross_entropy(y_pred, y)
     loss.backward()
 
