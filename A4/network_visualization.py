@@ -50,7 +50,7 @@ def compute_saliency_maps(X, y, model):
   y_pred = model.forward(X)
   loss = F.cross_entropy(y_pred, y, reduction="sum")
   loss.backward()
-  saliency = torch.abs(X.grad.data).max(dim=0) # maximum along channel dimension
+  saliency = torch.abs(X.grad.data).max(dim=0).values # maximum along channel dimension
   ##############################################################################
   #               END OF YOUR CODE                                             #
   ##############################################################################
