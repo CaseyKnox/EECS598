@@ -459,7 +459,6 @@ class CaptioningRNN(nn.Module):
         elif cell_type == 'attention':
           self.model = AttentionLSTM(wordvec_dim, hidden_dim, device=device, dtype=dtype)
           self.fc1 = nn.Linear(input_dim, self.hidden_dim*4*4, device=device, dtype=dtype)
-          self.fc3 = nn.Linear(, self.hidden_dim*4*4)
         else:
           raise ValueError(f"Unsupported cell type: {cell_type}")
         #############################################################################
