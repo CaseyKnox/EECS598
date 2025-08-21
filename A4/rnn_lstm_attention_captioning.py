@@ -615,7 +615,7 @@ class CaptioningRNN(nn.Module):
             elif self.cell_type == "lstm":
               h, c = self.model.step_forward(emb, h, c) # (N, H)
             elif self.cell_type == "attention":
-              attn, attn_weights = dot_product_attention(h, A) # (N,H), (N,4,4)
+              attn, attn_weights_all[:,i,:] = dot_product_attention(h, A) # (N,H), (N,4,4)
               h, c = self.model.step_forward(emb, h, c, attn)
             scores = self.fc2.forward(h) # (N,V)
             # print("scores", scores.shape)
