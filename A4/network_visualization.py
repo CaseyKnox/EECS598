@@ -99,7 +99,7 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
     if verbose:
       print(f"Iter {i:03}/{max_iter} | Target Score {target_score:.3f} | Max Score {max_score:.3f}")
 
-    if target_score > max_score:
+    if y_pred.argmax(dim=1) == target_y:
       break
     
     loss = y_pred[:, target_y].mean()
