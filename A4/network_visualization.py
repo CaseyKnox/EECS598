@@ -97,18 +97,17 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
     max_score = torch.max(y_pred)
     target_score = y_pred[:, target_y].item()
     if verbose:
-      print(f"Iter {i:04}/{max_iter} | Target Score {target_score:.3f} | Max Score {max_score:.3f}")
+      print(f"Iter {i:03}/{max_iter} | Target Score {target_score:.3f} | Max Score {max_score:.3f}")
 
     if target_score > max_score:
       break
-
-    y = torch.tensor([target_y], device=y_pred.device)
-    loss = F.cross_entropy(y_pred, y)
+    
+    loss = y_pred[:, target_y].mean()
     loss.backward()
 
     with torch.no_grad():
       g = X_adv.grad
-      dX = learning_rate * g / torch.norm(g, p=2)
+      dX = learning_rate * g / g.norm(p=2) + 1e-8
       X_adv += dX
 
       X_adv.grad = None
