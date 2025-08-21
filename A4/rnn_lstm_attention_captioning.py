@@ -451,10 +451,15 @@ class CaptioningRNN(nn.Module):
         self.fc1 = nn.Linear(input_dim, self.hidden_dim, device=device, dtype=dtype)
         self.emb = WordEmbedding(vocab_size, wordvec_dim, device=device, dtype=dtype)
         self.fc2 = nn.Linear(hidden_dim, vocab_size, device=device, dtype=dtype)
+
         if cell_type == 'rnn':
           self.model = RNN(wordvec_dim, hidden_dim, device=device, dtype=dtype)
         elif cell_type == 'lstm':
           self.model = LSTM(wordvec_dim, hidden_dim, device=device, dtype=dtype)
+        elif cell_type == 'attention':
+          self.model = AttentionLSTM(wordvec_dim, hidden_dim, device=device, dtype=dtype)
+          self.fc1 = nn.Linear(input_dim, self.hidden_dim*4*4, device=device, dtype=dtype)
+          self.fc3 = nn.Linear(, self.hidden_dim*4*4)
         else:
           raise ValueError(f"Unsupported cell type: {cell_type}")
         #############################################################################
@@ -511,6 +516,8 @@ class CaptioningRNN(nn.Module):
         # print(f"H", self.hidden_dim)
         features = self.feat.extract_mobilenet_feature(images) # (N,1280)
         h0 = self.fc1.forward(features) # (N, H)
+        if self.cell_type == "attention":
+          h0 = h0.view(N,self.hidden_dim,4,4)
         emb = self.emb(captions_in) # (N,T,W)
         # print(f"emb shape:", emb.shape)
         # print(f"h0 shape", h0.shape)
@@ -588,7 +595,12 @@ class CaptioningRNN(nn.Module):
         with torch.no_grad():
           N,C,_,_ = images.shape
           features = self.feat.extract_mobilenet_feature(images) # (N,1280)
-          h0 = self.fc1.forward(features) # (N, H)
+          if self.cell_type == "attention":
+            A = self.fc1.forward(features) # (N,H,4,4)
+            h0 = A.mean(dim=(2,3))
+          else:
+            h0 = self.fc1.forward(features) # (N, H)
+
           # print(f"N, T, W", N, T, self.wordvec_dim)
           # print(f"H", self.hidden_dim)
           # print(f"emb shape:", emb.shape)
@@ -603,6 +615,9 @@ class CaptioningRNN(nn.Module):
               h = self.model.step_forward(emb, h) # (N, H)
             elif self.cell_type == "lstm":
               h, c = self.model.step_forward(emb, h, c) # (N, H)
+            elif self.cell_type == "attention":
+              attn, attn_weights = dot_product_attention(h, A) # (N,H), (N,4,4)
+              h, c = self.model.step_forward(emb, h, c, attn)
             scores = self.fc2.forward(h) # (N,V)
             # print("scores", scores.shape)
             # print(f"vocab_size", self.vocab_size)
