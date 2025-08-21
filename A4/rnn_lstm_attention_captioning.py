@@ -447,8 +447,7 @@ class CaptioningRNN(nn.Module):
         self.dtype = dtype
         self.vocab_size = vocab_size
         self.wordvec_dim = wordvec_dim
-        pooling = cell_type != "attention"
-        self.feat = FeatureExtractor(pooling=pooling, device=device, dtype=dtype)
+        self.feat = FeatureExtractor(pooling=True, device=device, dtype=dtype)
         self.fc1 = nn.Linear(input_dim, self.hidden_dim, device=device, dtype=dtype)
         self.emb = WordEmbedding(vocab_size, wordvec_dim, device=device, dtype=dtype)
         self.fc2 = nn.Linear(hidden_dim, vocab_size, device=device, dtype=dtype)
@@ -515,6 +514,7 @@ class CaptioningRNN(nn.Module):
         # print(f"N, T, W", N, T, self.wordvec_dim)
         # print(f"H", self.hidden_dim)
         features = self.feat.extract_mobilenet_feature(images) # (N,1280)
+        print("Features shape", features.shape)
         h0 = self.fc1.forward(features) # (N, H)
         if self.cell_type == "attention":
           h0 = h0.view(N,self.hidden_dim,4,4)
