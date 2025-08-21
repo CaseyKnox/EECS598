@@ -96,15 +96,24 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
     y_pred = model.forward(X_adv)
     max_score = torch.max(y_pred).values
     target_score = y_pred[:, target_y]
+    if verbose:
+      print(f"Iter {i:04}/{max_iter} | Target Score {target_score:.3f} | Max Score {max_score:.3f}")
+
+    if target_score > max_score:
+      break
+
     y = torch.zeros_like(y_pred)
     y[:, torch.argmax(y_pred)] = 1
     loss = F.cross_entropy(y_pred, y)
     loss.backward()
-    g = X_adv.grad.data
-    dX = learning_rate * g / torch.norm(g, p=2)
-    X_adv += dX
-    if verbose:
-      print(f"Iter {i:04}/{max_iter} | Target Score {target_score:.3f} | Max Score {max_score:.3f}")
+
+    with torch.no_grad():
+      g = X_adv.grad
+      dX = learning_rate * g / torch.norm(g, p=2)
+      X_adv += dX
+
+      X_adv.grad = None
+
   ##############################################################################
   #                             END OF YOUR CODE                               #
   ##############################################################################
