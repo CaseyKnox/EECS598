@@ -459,7 +459,7 @@ class CaptioningRNN(nn.Module):
         elif cell_type == 'attention':
           self.model = AttentionLSTM(wordvec_dim, hidden_dim, device=device, dtype=dtype)
           self.feat = FeatureExtractor(pooling=False, device=device, dtype=dtype)
-          self.fc1 = nn.Linear(input_dim*4*4, self.hidden_dim*4*4, device=device, dtype=dtype)
+          self.fc1 = nn.Conv2d(input_dim, hidden_dim, 1, device=device, dtype=dtype)
         else:
           raise ValueError(f"Unsupported cell type: {cell_type}")
         #############################################################################
@@ -515,9 +515,10 @@ class CaptioningRNN(nn.Module):
         # print(f"N, T, W", N, T, self.wordvec_dim)
         # print(f"H", self.hidden_dim)
         features = self.feat.extract_mobilenet_feature(images) # (N,1280) or (N,1280,4,4)
-        h0 = self.fc1.forward(features.view(N,-1)) # (N, H)
-        if self.cell_type == "attention":
-          h0 = h0.view(N,self.hidden_dim,4,4)
+
+        # This could be a linear layer or a CNN in the case of attention
+        h0 = self.fc1.forward(features) # (N, H) or (N,H,4,4)
+
         emb = self.emb(captions_in) # (N,T,W)
         # print(f"emb shape:", emb.shape)
         # print(f"h0 shape", h0.shape)
