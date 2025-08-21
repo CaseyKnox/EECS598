@@ -447,7 +447,8 @@ class CaptioningRNN(nn.Module):
         self.dtype = dtype
         self.vocab_size = vocab_size
         self.wordvec_dim = wordvec_dim
-        self.feat = FeatureExtractor(pooling=True, device=device, dtype=dtype)
+        pooling = cell_type != "attention"
+        self.feat = FeatureExtractor(pooling=pooling, device=device, dtype=dtype)
         self.fc1 = nn.Linear(input_dim, self.hidden_dim, device=device, dtype=dtype)
         self.emb = WordEmbedding(vocab_size, wordvec_dim, device=device, dtype=dtype)
         self.fc2 = nn.Linear(hidden_dim, vocab_size, device=device, dtype=dtype)
