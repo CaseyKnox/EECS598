@@ -94,7 +94,7 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
   ##############################################################################
   for i in range(max_iter):
     y_pred = model.forward(X_adv)
-    max_score = torch.max(y_pred).values.item()
+    max_score = torch.max(y_pred).values
     target_score = y_pred[:, target_y].item()
     if verbose:
       print(f"Iter {i:04}/{max_iter} | Target Score {target_score:.3f} | Max Score {max_score:.3f}")
