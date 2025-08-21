@@ -94,6 +94,7 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
   ##############################################################################
   for i in range(max_iter):
     y_pred = model.forward(X_adv)
+    print(f"y_pred", y_pred.shape)
     loss = F.cross_entropy(y_pred, target_y)
     loss.backward()
     g = X_adv.grad.data
