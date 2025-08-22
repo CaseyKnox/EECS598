@@ -57,8 +57,6 @@ def gram_matrix(features, normalize=True):
     ##############################################################################
     N,C,H,W = features.shape
     f_flat = features.view((N,C,H*W))
-    print("f_flat", f_flat.shape)
-    print("f_flat.permute", f_flat.permute((0,2,1)))
     gram = f_flat @ f_flat.permute((0,2,1))
     if normalize:
       gram /= H*W*C
