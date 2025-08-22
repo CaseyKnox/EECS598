@@ -30,8 +30,7 @@ def content_loss(content_weight, content_current, content_original):
     ##############################################################################
     # TODO: Compute the content loss for style transfer.                         #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    return content_weight * (content_current - content_original).pow(2).sum()
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
