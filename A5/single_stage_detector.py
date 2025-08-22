@@ -97,24 +97,24 @@ def GenerateProposal(anchors, offsets, method='YOLO'):
   cy = (anchors[...,3] + anchors[...,1]) / 2
   w = anchors[...,2] - anchors[...,0]
   h = anchors[...,3] - anchors[...,1]
-  anchors_center = torch.stack([cx,cy,w,h], dim=-1) # B,A,H,W,4
-  print("anchors_center", anchors_center.shape)
-  print("offsets", offsets.shape)
-  print("anchors_center[...,0]", anchors_center[...,0].shape)
-  print("offsets[...,0]", offsets[...,0].shape)
 
   if method == "YOLO":
-    proposals = anchors_center.clone()
-    proposals[...,0] += offsets[...,0]
-    proposals[...,1] += offsets[...,1]
-    proposals[...,2] = proposals[...,2] * torch.exp(offsets[...,2])
-    proposals[...,3] = proposals[...,3] * torch.exp(offsets[...,3])
+    cx_t = cx + offsets[...,0]
+    cy_t = cy + offsets[...,1]
+    w_t = w * torch.exp(offsets[...,2])
+    h_t = h * torch.exp(offsets[...,3])
   else:
-    proposals = anchors_center.clone()
-    proposals[...,0] += offsets[...,0] * proposals[...,2]
-    proposals[...,1] += offsets[...,1] * proposals[...,3]
-    proposals[...,2] = proposals[...,2] * torch.exp(offsets[...,2])
-    proposals[...,3] = proposals[...,3] * torch.exp(offsets[...,3])
+    cx_t = cx + offsets[...,0] * w
+    cy_t = cy + offsets[...,1] * h
+    w_t = w * torch.exp(offsets[...,2])
+    h_t = h * torch.exp(offsets[...,3])
+  
+  # convert back (cx, cy, w, h) -> (x_tl,y_tl,x_br,y_br)
+  xtl = cx_t - w_t / 2
+  ytl = cy_t - h_t / 2
+  xbr = cx_t + w_t / 2
+  ybr = cy_t + h_t / 2
+  proposals = torch.stack([xtl,ytl,xbr,ybr], dim=-1)
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
