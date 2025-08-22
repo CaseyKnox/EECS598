@@ -39,18 +39,24 @@ def GenerateAnchor(anc, grid):
   ##############################################################################
   A,_ = anc.shape
   B,H,W,_ = grid.shape
-  anchors = torch.empty((B,A,H,W,4), device=anc.device, dtype=anc.dtype)
-  for i, a in enumerate(anc):
-    w = a[0] / 2
-    h = a[1] / 2
-    x_tl = grid[:,:,:,0] - w
-    x_br = grid[:,:,:,0] + w
-    y_tl = grid[:,:,:,1] - h
-    y_br = grid[:,:,:,1] + h
-    anchors[:,i,:,:,0] = x_tl
-    anchors[:,i,:,:,1] = y_tl
-    anchors[:,i,:,:,2] = x_br
-    anchors[:,i,:,:,3] = y_br
+  half = (anc / 2).view(A,1,1,2) # (A,1,1,2)
+  C = grid.unsqueeze(1)          # (B,1,H,W,2)    
+  tl = C - half                  # (B,A,H,W,2)
+  br = C + half                  # (B,A,H,W,2)
+  anchors = torch.stack([        # (B,A,H,W,4)
+    tl[...,0], tl[...,1], br[...,0], br[...,1]], dim=-1)
+  # anchors = torch.empty((B,A,H,W,4), device=anc.device, dtype=anc.dtype)
+  # for i, a in enumerate(anc):
+  #   w = a[0] / 2
+  #   h = a[1] / 2
+  #   x_tl = grid[:,:,:,0] - w
+  #   x_br = grid[:,:,:,0] + w
+  #   y_tl = grid[:,:,:,1] - h
+  #   y_br = grid[:,:,:,1] + h
+  #   anchors[:,i,:,:,0] = x_tl
+  #   anchors[:,i,:,:,1] = y_tl
+  #   anchors[:,i,:,:,2] = x_br
+  #   anchors[:,i,:,:,3] = y_br
 
   ##############################################################################
   #                               END OF YOUR CODE                             #
