@@ -95,7 +95,7 @@ def style_loss(feats, style_layers, style_targets, style_weights):
       style_layer = style_layers[i]
       A = style_targets[i]
       G = gram_matrix(feats[style_layer])
-      style_loss += style_weights[i] @ (G-A).norm(p=2)
+      style_loss += style_weights[i] * (G-A).norm(p=2)
     return style_loss
     ##############################################################################
     #                               END OF YOUR CODE                             #
