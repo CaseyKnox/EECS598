@@ -107,7 +107,7 @@ def make_adversarial_attack(X, target_y, model, max_iter=100, verbose=True):
 
     with torch.no_grad():
       g = X_adv.grad
-      dX = learning_rate * g / g.norm(p=2) + 1e-8
+      dX = learning_rate * g / (g.norm(p=2) + 1e-8)
       X_adv += dX
 
       X_adv.grad = None
@@ -145,8 +145,13 @@ def class_visualization_step(img, target_y, model, **kwargs):
     # the generated image using gradient ascent & reset img.grad to zero   #
     # after each step.                                                     #
     ########################################################################
-    # Replace "pass" statement with your code
-    pass
+    y_pred = model.forward(img)
+    loss = y_pred[:,target_y]
+    loss.backward()
+    with torch.no_grad():
+      g = img.grad
+      dX = learning_rate * g + l2_reg * img.norm(p=2)
+      img += dX
     ########################################################################
     #                             END OF YOUR CODE                         #
     ########################################################################
