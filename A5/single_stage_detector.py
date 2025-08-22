@@ -92,8 +92,25 @@ def GenerateProposal(anchors, offsets, method='YOLO'):
   # TODO: Given anchor coordinates and the proposed offset for each anchor,    #
   # compute the proposal coordinates using the transformation formulas above.  #
   ##############################################################################
-  # Replace "pass" statement with your code
-  pass
+  # convert (x_tl,y_tl,x_br,y_br) -> (cx, cy, w, h)
+  cx = (anchors[...,2] + anchors[...,0]) / 2
+  cy = (anchors[...,3] + anchors[...,1]) / 2
+  w = anchors[...,2] - anchors[...,0]
+  h = anchors[...,3] - anchors[...,1]
+  anchors_center = torch.stack([cx,cy,w,h]) # B,A,H,W,4
+
+  if method == "YOLO":
+    proposals = anchors_center.clone()
+    proposals[...,0] += offsets[...,0]
+    proposals[...,1] += offsets[...,1]
+    proposals[...,2] = proposals[...,2] * torch.exp(offsets[...,2])
+    proposals[...,3] = proposals[...,3] * torch.exp(offsets[...,3])
+  else:
+    proposals = anchors_center.clone()
+    proposals[...,0] += offsets[...,0] * proposals[...,2]
+    proposals[...,1] += offsets[...,1] * proposals[...,3]
+    proposals[...,2] = proposals[...,2] * torch.exp(offsets[...,2])
+    proposals[...,3] = proposals[...,3] * torch.exp(offsets[...,3])
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
