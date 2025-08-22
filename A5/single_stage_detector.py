@@ -97,7 +97,7 @@ def GenerateProposal(anchors, offsets, method='YOLO'):
   cy = (anchors[...,3] + anchors[...,1]) / 2
   w = anchors[...,2] - anchors[...,0]
   h = anchors[...,3] - anchors[...,1]
-  anchors_center = torch.stack([cx,cy,w,h]) # B,A,H,W,4
+  anchors_center = torch.stack([cx,cy,w,h], dim=-1) # B,A,H,W,4
   print("anchors_center", anchors_center.shape)
   print("offsets", offsets.shape)
   print("anchors_center[...,0]", anchors_center[...,0].shape)
