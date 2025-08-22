@@ -90,8 +90,13 @@ def style_loss(feats, style_layers, style_targets, style_weights):
     # not be very much code (~5 lines).                                          #
     # You will need to use your gram_matrix function.                            #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    style_loss = 0
+    for i in range(len(style_layers)):
+      style_layer = style_layers[i]
+      A = style_targets[i]
+      G = gram_matrix(feats[style_layer])
+      style_loss += style_weights[i] @ (G-A).norm(p=2)
+    return style_loss
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
