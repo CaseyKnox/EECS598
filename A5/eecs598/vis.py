@@ -84,9 +84,9 @@ def detection_visualizer(img, idx_to_class, bbox=None, pred=None):
 
     if pred is not None:
         for bbox_idx in range(pred.shape[0]):
-            one_bbox = pred[bbox_idx][:4]
-            cv2.rectangle(img_copy, (one_bbox[0], one_bbox[1]), (one_bbox[2],
-                        one_bbox[3]), (0, 255, 0), 2)
+            one_bbox = pred[bbox_idx][:4].tolist()
+            cv2.rectangle(img_copy, (int(one_bbox[0]), int(one_bbox[1])), (int(one_bbox[2]),
+                        int(one_bbox[3])), (0, 255, 0), 2)
             
             if pred.shape[1] > 4: # if class and conf score info provided
                 obj_cls = idx_to_class[pred[bbox_idx][4].item()]
