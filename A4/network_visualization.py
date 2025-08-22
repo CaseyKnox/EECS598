@@ -147,7 +147,6 @@ def class_visualization_step(img, target_y, model, **kwargs):
     ########################################################################
     y_pred = model.forward(img)
     score = y_pred[:,target_y]
-    print("score", score.shape)
     loss = score - l2_reg * img.pow(2).sum()
     loss.backward()
     with torch.no_grad():
