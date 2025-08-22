@@ -118,8 +118,8 @@ def tv_loss(img, tv_weight):
     # TODO: Compute total variation loss.                                        #
     # Your implementation should be vectorized and not require any loops!        #
     ##############################################################################
-    horiz_loss = (img - img[:,:,:,1:]).pow(2).sum()
-    vert_loss = (img - img[:,:,1:,:]).pow(2).sum()
+    horiz_loss = (img[:,:,:,:-1] - img[:,:,:,1:]).pow(2).sum()
+    vert_loss = (img[:,:,:-1,:] - img[:,:,1:,:]).pow(2).sum()
     loss = tv_weight * (horiz_loss + vert_loss)
     return loss
     ##############################################################################
