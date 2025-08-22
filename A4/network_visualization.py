@@ -150,7 +150,7 @@ def class_visualization_step(img, target_y, model, **kwargs):
     loss.backward()
     with torch.no_grad():
       g = img.grad
-      dX = learning_rate * g + l2_reg * img.norm(p=2)
+      dX = learning_rate * g - l2_reg * img.norm(p=2)
       img += dX
     ########################################################################
     #                             END OF YOUR CODE                         #
