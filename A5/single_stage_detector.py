@@ -98,6 +98,10 @@ def GenerateProposal(anchors, offsets, method='YOLO'):
   w = anchors[...,2] - anchors[...,0]
   h = anchors[...,3] - anchors[...,1]
   anchors_center = torch.stack([cx,cy,w,h]) # B,A,H,W,4
+  print("anchors_center", anchors_center.shape)
+  print("offsets", offsets.shape)
+  print("anchors_center[...,0]", anchors_center[...,0].shape)
+  print("offsets[...,0]", offsets[...,0].shape)
 
   if method == "YOLO":
     proposals = anchors_center.clone()
