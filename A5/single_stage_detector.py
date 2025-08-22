@@ -37,8 +37,23 @@ def GenerateAnchor(anc, grid):
   # TODO: Given a set of anchor shapes and a grid cell on the activation map,  #
   # generate all the anchor coordinates for each image. Support batch input.   #
   ##############################################################################
-  # Replace "pass" statement with your code
-  pass
+  A,_ = anc.shape
+  B,H,W,_ = grid.shape
+  anchors = torch.empty((B,A,H,W,4))
+  W2 = A[:,0] // 2
+  H2 = A[:,1] // 2
+  for i, a in enumerate(anc):
+    w = a[:,0] // 2
+    h = a[:,1] // 2
+    x_tl = grid[:,:,:,0] - w
+    x_br = grid[:,:,:,0] + w
+    y_tl = grid[:,:,:,1] - h
+    y_br = grid[:,:,:,1] + h
+    anchors[:,i,:,:,0] = x_tl
+    anchors[:,i,:,:,1] = y_tl
+    anchors[:,i,:,:,2] = x_br
+    anchors[:,i,:,:,3] = y_br
+
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
