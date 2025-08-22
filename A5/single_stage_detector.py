@@ -40,8 +40,6 @@ def GenerateAnchor(anc, grid):
   A,_ = anc.shape
   B,H,W,_ = grid.shape
   anchors = torch.empty((B,A,H,W,4))
-  W2 = A[:,0] // 2
-  H2 = A[:,1] // 2
   for i, a in enumerate(anc):
     w = a[:,0] // 2
     h = a[:,1] // 2
