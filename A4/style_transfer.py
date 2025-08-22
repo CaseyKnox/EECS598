@@ -55,8 +55,11 @@ def gram_matrix(features, normalize=True):
     # TODO: Compute the Gram matrix from features.                               #
     # Don't forget to implement for both normalized and non-normalized version   #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    N,C,H,W = features.shape
+    f_flat = features.view((N,C,H*W))
+    gram = f_flat @ f_flat.T
+    if normalize:
+      gram /= H*W*C
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
