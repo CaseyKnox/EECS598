@@ -152,6 +152,7 @@ def class_visualization_step(img, target_y, model, **kwargs):
       g = img.grad
       dX = learning_rate * g
       img += dX
+      img.grad = None
     ########################################################################
     #                             END OF YOUR CODE                         #
     ########################################################################
