@@ -176,12 +176,16 @@ def IoU(proposals, bboxes):
   # Prepare for broadcasting
   p_1 = p.unsqueeze(dim=2) # (B,M,1,4)
   b_1 = bboxes.unsqueeze(dim=1) # (B,1,N,5)
-  int_width  = torch.abs(p_1[...,0] - b_1[...,2]) \
-                        - torch.abs(p_1[...,0] - b_1[...,0]) \
-                        - torch.abs(p_1[...,2] - b_1[...,2]) # (B,M,N)
-  int_height = torch.abs(p_1[...,1] - b_1[...,3]) \ 
-                        - torch.abs(p_1[...,1] - b_1[...,1]) \
-                        - torch.abs(p_1[...,3] - b_1[...,3]) # (B,M,N)
+  int_width = (
+    torch.abs(p_1[...,0] - b_1[...,2]) 
+    - torch.abs(p_1[...,0] - b_1[...,0])
+    - torch.abs(p_1[...,2] - b_1[...,2])
+  ) # (B,M,N)
+  int_height = (
+    torch.abs(p_1[...,1] - b_1[...,3])
+    - torch.abs(p_1[...,1] - b_1[...,1])
+    - torch.abs(p_1[...,3] - b_1[...,3]) 
+  ) # (B,M,N)
   intersection = int_width * int_height # (B,M,N)
   assert intersection.shape == (B,M,N)
 
