@@ -166,8 +166,8 @@ def IoU(proposals, bboxes):
   area_prop = area_prop.unsqueeze(dim=2) # (B,M,1)
   assert area_prop.shape == (B,M,1)
 
-  wb = bboxes[...,0] - bboxes[...,2] # (B,N)
-  hb = bboxes[...,1] - bboxes[...,3] # (B,N)
+  wb = bboxes[...,2] - bboxes[...,0] # (B,N)
+  hb = bboxes[...,3] - bboxes[...,1] # (B,N)
   area_bbox = wb * hb # (B,N)
   area_bbox = area_bbox.unsqueeze(dim=1) # (B,1,N)
   assert area_bbox.shape == (B,1,N)
@@ -176,16 +176,12 @@ def IoU(proposals, bboxes):
   # Prepare for broadcasting
   p_1 = p.unsqueeze(dim=2) # (B,M,1,4)
   b_1 = bboxes.unsqueeze(dim=1) # (B,1,N,5)
-  int_width = (
-    torch.abs(p_1[...,0] - b_1[...,2]) 
-    - torch.abs(p_1[...,0] - b_1[...,0])
-    - torch.abs(p_1[...,2] - b_1[...,2])
-  ) # (B,M,N)
-  int_height = (
-    torch.abs(p_1[...,1] - b_1[...,3])
-    - torch.abs(p_1[...,1] - b_1[...,1])
-    - torch.abs(p_1[...,3] - b_1[...,3]) 
-  ) # (B,M,N)
+  x1 = torch.maximum(p_1[...,0], b_1[...,0])
+  y1 = torch.maximum(p_1[...,1], b_1[...,1])
+  x2 = torch.maximum(p_1[...,2], b_1[...,2])
+  y2 = torch.maximum(p_1[...,3], b_1[...,3])
+  int_height = y2 - y1 # (B,M,N)
+  int_width = x2 - x1 # (B,M,N)
   intersection = int_width * int_height # (B,M,N)
   assert intersection.shape == (B,M,N)
 
