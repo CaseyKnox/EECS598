@@ -180,8 +180,8 @@ def IoU(proposals, bboxes):
   y1 = torch.maximum(p_1[...,1], b_1[...,1])
   x2 = torch.maximum(p_1[...,2], b_1[...,2])
   y2 = torch.maximum(p_1[...,3], b_1[...,3])
-  int_height = y2 - y1 # (B,M,N)
-  int_width = x2 - x1 # (B,M,N)
+  int_height = (y2 - y1).clamp(min=0) # (B,M,N)
+  int_width = (x2 - x1).clamp(min=0) # (B,M,N)
   intersection = int_width * int_height # (B,M,N)
   assert intersection.shape == (B,M,N)
 
