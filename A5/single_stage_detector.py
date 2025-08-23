@@ -154,8 +154,42 @@ def IoU(proposals, bboxes):
   # and the Area of Intersection can be computed using the top-left corner and #
   # bottom-right corner of proposal and bbox. Think about their relationships. #
   ##############################################################################
-  # Replace "pass" statement with your code
-  pass
+  B,A,H,W,_ = proposals.shape
+  _,N,_ = bboxes.shape
+  M = A*H*W
+
+  # Calculate Areas of bbox and proposals
+  p = proposals.view(B,-1,4)
+  wp = p[...,0] - p[...,2] # (B,M)
+  hp = p[...,1] - p[...,3] # (B,M)
+  area_prop = wp * hp # (B,M)
+  area_prop = area_prop.unsqueeze(dim=2) # (B,M,1)
+  assert area_prop.shape == (B,M,1)
+
+  wb = bboxes[...,0] - bboxes[...,2] # (B,N)
+  hb = bboxes[...,1] - bboxes[...,3] # (B,N)
+  area_bbox = wb * hb # (B,N)
+  area_bbox = area_bbox.unsqueeze(dim=1) # (B,1,N)
+  assert area_bbox.shape == (B,1,N)
+
+  # Calculate intersection
+  # Prepare for broadcasting
+  p_1 = p.unsqueeze(dim=2) # (B,M,1,4)
+  b_1 = bboxes.unsqueeze(dim=1) # (B,1,N,5)
+  int_width  = torch.abs(p_1[...,0] - b_1[...,2]) \
+                        - torch.abs(p_1[...,0] - b_1[...,0]) \
+                        - torch.abs(p_1[...,2] - b_1[...,2]) # (B,M,N)
+  int_height = torch.abs(p_1[...,1] - b_1[...,3]) \ 
+                        - torch.abs(p_1[...,1] - b_1[...,1]) \
+                        - torch.abs(p_1[...,3] - b_1[...,3]) # (B,M,N)
+  intersection = int_width * int_height # (B,M,N)
+  assert intersection.shape == (B,M,N)
+
+  # Union and IoU calculation
+  union = area_prop + area_bbox - intersection # (B,M,N)
+  iou_mat = intersection / union # (B,M,N)
+  assert iou_mat.shape == (B,M,N)
+
   ##############################################################################
   #                               END OF YOUR CODE                             #
   ##############################################################################
