@@ -389,8 +389,26 @@ class SingleStageDetector(nn.Module):
     # HINT: Set `neg_thresh=0.2` in ReferenceOnActivatedAnchors in this notebook #
     #       (A5-1) for a better performance than with the default value.         #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    B,N,_ = bboxes.shape
+    anc_per_img = torch.prod(torch.tensor(self.anchor_list.shape[1:-1]))
+    # i)
+    features = self.feat_extractor.forward(images)
+    # ii)
+    grid = GenerateGrid(B)
+    anchors = GenerateAnchor(self.anchor_list, grid) # (B,A,H,W,4)
+    # iii)
+    iou_mat = IoU(anchors, bboxes) # (B,M,N)
+    (act_anchor_idx, neg_anchor_idx, gt_conf_scores, gt_offsets, gt_class, 
+     act_anc_coord, neg_anc_coord) = ReferenceOnActivatedAnchors(anchors, bboxes, grid, iou_mat, neg_thresh=0.2)
+
+    # iv)
+    conf_scores, offsets, class_scores = self.pred_network.forward(features, act_anchor_idx, neg_anchor_idx)
+
+    # v)
+    conf_loss = ConfScoreRegression(conf_scores, gt_conf_scores)
+    reg_loss = BboxRegression(offsets, gt_offsets)
+    cls_loss = ObjectClassification(class_scores, gt_class, B, anc_per_img, act_anchor_idx)
+    total_loss = w_conf * conf_loss + w_reg * reg_loss + w_cls * cls_loss
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
