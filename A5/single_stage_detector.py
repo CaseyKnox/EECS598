@@ -391,6 +391,7 @@ class SingleStageDetector(nn.Module):
     ##############################################################################
     B,N,_ = bboxes.shape
     anc_per_img = torch.prod(torch.tensor(self.anchor_list.shape[1:-1]))
+    self.anchor_list.to(images.device)
     # i)
     features = self.feat_extractor.forward(images)
     # ii)
