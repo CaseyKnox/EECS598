@@ -416,6 +416,7 @@ class SingleStageDetector(nn.Module):
 
     return total_loss
   
+  @torch.no_grad()
   def inference(self, images, thresh=0.5, nms_thresh=0.7):
     """"
     Inference-time forward pass for the single stage detector.
