@@ -391,14 +391,11 @@ class SingleStageDetector(nn.Module):
     ##############################################################################
     B,N,_ = bboxes.shape
     anc_per_img = torch.prod(torch.tensor(self.anchor_list.shape[1:-1]))
-    self.anchor_list.to(images.device)
     # i)
     features = self.feat_extractor.forward(images)
     # ii)
     grid = GenerateGrid(B, device=images.device)
-    print("a list device", self.anchor_list.device)
-    print("grid device", grid.device)
-    anchors = GenerateAnchor(self.anchor_list, grid) # (B,A,H,W,4)
+    anchors = GenerateAnchor(self.anchor_list.to(images.device), grid) # (B,A,H,W,4)
     # iii)
     iou_mat = IoU(anchors, bboxes) # (B,M,N)
     (act_anchor_idx, neg_anchor_idx, gt_conf_scores, gt_offsets, gt_class, 
