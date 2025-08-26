@@ -390,7 +390,6 @@ class SingleStageDetector(nn.Module):
     #       (A5-1) for a better performance than with the default value.         #
     ##############################################################################
     B,N,_ = bboxes.shape
-    anc_per_img = torch.prod(torch.tensor(self.anchor_list.shape[1:-1]))
     # i)
     features = self.feat_extractor.forward(images)
     # ii)
@@ -405,6 +404,7 @@ class SingleStageDetector(nn.Module):
     conf_scores, offsets, class_scores = self.pred_network.forward(features, act_anchor_idx, neg_anchor_idx)
 
     # v)
+    anc_per_img = torch.prod(torch.tensor(anchors.shape[1:-1]))
     conf_loss = ConfScoreRegression(conf_scores, gt_conf_scores)
     reg_loss = BboxRegression(offsets, gt_offsets)
     cls_loss = ObjectClassification(class_scores, gt_class, B, anc_per_img, act_anchor_idx)
