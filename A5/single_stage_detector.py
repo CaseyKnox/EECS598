@@ -332,7 +332,7 @@ class PredictionNetwork(nn.Module):
       conf_scores = torch.sigmoid(conf_scores) # (2M,1)
       offsets = pos_anchors[:,1:] # (M,4)
       tx_ty = torch.sigmoid(offsets[:,:2]) - 0.5 # offsets between -0.5 and 0.5
-      offsets = torch.cat([tx_ty, offsets[:, 2:]]) # (M,4)
+      offsets = torch.cat([tx_ty, offsets[:, 2:]], dim=1) # (M,4)
 
     else:
       pass
