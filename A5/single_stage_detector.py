@@ -395,7 +395,7 @@ class SingleStageDetector(nn.Module):
     # i)
     features = self.feat_extractor.forward(images)
     # ii)
-    grid = GenerateGrid(B)
+    grid = GenerateGrid(B, device=images.device)
     anchors = GenerateAnchor(self.anchor_list, grid) # (B,A,H,W,4)
     # iii)
     iou_mat = IoU(anchors, bboxes) # (B,M,N)
