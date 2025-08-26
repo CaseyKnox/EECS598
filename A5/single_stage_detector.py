@@ -444,8 +444,57 @@ class SingleStageDetector(nn.Module):
     # Note that `final_propsals`, `final_conf_scores`, and `final_class` are all #
     # lists of B 2-D tensors (you may need to unsqueeze dim=1 for the last two). #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    # 1) Backbone → heads
+    B, _, _, _ = images.shape
+    features = self.feat_extractor.forward(images)
+
+    # (B, A, H, W), (B, A, 4, H, W), (B, C, H, W)
+    conf_scores, offsets, class_scores = self.pred_network.forward(features)
+
+    # 2) Class probs & best class per cell
+    class_prob = torch.softmax(class_scores, dim=1)                 # (B, C, H, W)
+    best_class_prob, best_class = class_prob.max(dim=1)             # (B, H, W), (B, H, W)
+
+    # 3) Build anchors for this feature map, then decode proposals
+    #    anchors: (B, A, H, W, 4) in xyxy
+    grid = GenerateGrid(B, device=images.device)
+    anchors = GenerateAnchor(self.anchor_list.to(images.device), grid)     # (B, A, H, W, 4)
+
+    # offsets is (B, A, 4, H, W) → (B, A, H, W, 4)
+    offsets_hw = offsets.permute(0, 1, 3, 4, 2).contiguous()
+
+    # proposals_all: (B, A, H, W, 4) in xyxy (decoded)
+    proposals_all = GenerateProposal(anchors, offsets_hw)                  # (B, A, H, W, 4)
+
+    # 4) Broadcast best class info to anchors
+    A = conf_scores.shape[1]
+    best_class_prob = best_class_prob.unsqueeze(1).expand(-1, A, -1, -1)   # (B, A, H, W)
+    best_class      = best_class.unsqueeze(1).expand(-1, A, -1, -1)        # (B, A, H, W)
+
+    # 5) Per-image filtering + NMS
+    for i in range(B):
+        # Threshold on conf_scores per the assignment hint
+        mask = (conf_scores[i] > thresh)                                   # (A, H, W)
+        num_kept = mask.sum().item()
+
+        if num_kept == 0:
+            # Append empty tensors with correct shapes/dtypes
+            final_proposals.append(torch.empty(0, 4, device=images.device, dtype=proposals_all.dtype))
+            final_conf_scores.append(torch.empty(0, 1, device=images.device, dtype=conf_scores.dtype))
+            final_class.append(torch.empty(0, 1, device=images.device, dtype=torch.long))
+            continue
+
+        # Gather masked boxes/scores/classes
+        boxes   = proposals_all[i][mask]                                    # (K, 4) float xyxy
+        scores  = conf_scores[i][mask].to(dtype=boxes.dtype)                # (K,)
+        classes = best_class[i][mask].to(dtype=torch.long)                  # (K,)
+
+        # NMS expects (N,4) boxes & (N,) scores
+        keep = torchvision.ops.nms(boxes, scores, nms_thresh)               # (L,)
+
+        final_proposals.append(boxes[keep])                                 # (L, 4)
+        final_conf_scores.append(scores[keep].unsqueeze(1))                 # (L, 1)
+        final_class.append(classes[keep].unsqueeze(1))                      # (L, 1)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
