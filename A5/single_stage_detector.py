@@ -319,10 +319,11 @@ class PredictionNetwork(nn.Module):
     training = pos_anchor_idx is not None
     A = self.num_anchors
     B, indim, h, w = features.shape
+    x = self.pred_layer(features) # (B, A*5+C, 7, 7)
+    x_anchor = x[:,:A*5,:,:].view((B,A,5,h,w)) # (B, 5A, H, W)
+    x_class = x[:,A*5:,:,:] # (B, C, H, W)
+
     if training:
-      x = self.pred_layer(features) # (B, A*5+C, 7, 7)
-      x_anchor = x[:,:A*5,:,:].view((B,A,5,h,w))
-      x_class = x[:,A*5:,:,:]
       class_scores = self._extract_class_scores(x_class, pos_anchor_idx) # (M,C)
       pos_anchors = self._extract_anchor_data(x_anchor, pos_anchor_idx) # (M,5)
       neg_anchors = self._extract_anchor_data(x_anchor, neg_anchor_idx) # (M,5)
@@ -333,9 +334,14 @@ class PredictionNetwork(nn.Module):
       offsets = pos_anchors[:,1:] # (M,4)
       tx_ty = torch.sigmoid(offsets[:,:2]) - 0.5 # offsets between -0.5 and 0.5
       offsets = torch.cat([tx_ty, offsets[:, 2:]], dim=1) # (M,4)
-
     else:
-      pass
+      # (conf, tx, ty, tw, th)
+      conf_scores = torch.sigmoid(x_anchor[:,:,0,:,:])    # (B,A,H,W)
+      offsets = x_anchor[:,:,1:,:,:]                      # (B,A,4,H,W)
+      tx_ty = torch.sigmoid(offsets[:,:2]) - 0.5 # offsets between -0.5 and 0.5
+      offsets = torch.cat([tx_ty, offsets[:, 2:]], dim=1) # (M,4)
+      class_scores = x_class                              # (B,C,H,W)
+
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
