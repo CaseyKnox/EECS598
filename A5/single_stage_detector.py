@@ -408,7 +408,7 @@ class SingleStageDetector(nn.Module):
     conf_loss = ConfScoreRegression(conf_scores, gt_conf_scores)
     reg_loss = BboxRegression(offsets, gt_offsets)
     cls_loss = ObjectClassification(class_scores, gt_class, B, anc_per_img, act_anchor_idx)
-    print(f"conf loss {conf_loss:.3f} | reg_loss {reg_loss:.3f} | cls_loss {cls_loss:.3f}")
+    # print(f"conf loss {conf_loss:.3f} | reg_loss {reg_loss:.3f} | cls_loss {cls_loss:.3f}")
     total_loss = w_conf * conf_loss + w_reg * reg_loss + w_cls * cls_loss
     ##############################################################################
     #                               END OF YOUR CODE                             #
