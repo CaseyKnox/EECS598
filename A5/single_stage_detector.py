@@ -484,8 +484,59 @@ def nms(boxes, scores, iou_threshold=0.5, topk=None):
   # HINT: You can refer to the torchvision library code:                      #
   #   github.com/pytorch/vision/blob/master/torchvision/csrc/cpu/nms_cpu.cpp  #
   #############################################################################
-  # Replace "pass" statement with your code
-  pass
+  # Initialize keep list for indices of selected boxes
+  keep = []
+  # Sort indices by scores in descending order
+  order = torch.argsort(scores, descending=True)
+  
+  # Convert boxes to (x1, y1, x2, y2) format if needed
+  x1 = boxes[:, 0]
+  y1 = boxes[:, 1]
+  x2 = boxes[:, 2]
+  y2 = boxes[:, 3]
+  
+  # Compute areas of all boxes
+  areas = (x2 - x1) * (y2 - y1)
+  
+  while order.numel() > 0:
+      # Pick the box with highest score
+      i = order[0].item()
+      keep.append(i)
+      
+      # Break if we've reached topk
+      if topk is not None and len(keep) >= topk:
+          break
+          
+      # Get coordinates of selected box
+      xx1 = x1[i]
+      yy1 = y1[i]
+      xx2 = x2[i]
+      yy2 = y2[i]
+      
+      # Compute intersections with remaining boxes
+      xx1_int = torch.max(xx1, x1[order[1:]])
+      yy1_int = torch.max(yy1, y1[order[1:]])
+      xx2_int = torch.min(xx2, x2[order[1:]])
+      yy2_int = torch.min(yy2, y2[order[1:]])
+      
+      # Compute intersection areas
+      w = torch.clamp(xx2_int - xx1_int, min=0)
+      h = torch.clamp(yy2_int - yy1_int, min=0)
+      inter = w * h
+      
+      # Compute IoU
+      iou = inter / (areas[i] + areas[order[1:]] - inter)
+      
+      # Keep boxes with IoU <= threshold
+      mask = iou <= iou_threshold
+      if mask.sum() == 0:
+          break
+          
+      # Update order to include only non-suppressed boxes
+      order = order[1:][mask]
+  
+  # Convert keep to tensor
+  keep = torch.tensor(keep, dtype=torch.long, device=boxes.device)
   #############################################################################
   #                              END OF YOUR CODE                             #
   #############################################################################
