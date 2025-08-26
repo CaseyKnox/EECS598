@@ -214,9 +214,13 @@ class PredictionNetwork(nn.Module):
     # A=self.num_anchors and C=self.num_classes.                                 #
     ##############################################################################
     # Make sure to name your prediction network pred_layer.
-    self.pred_layer = None
-    # Replace "pass" statement with your code
-    pass
+    AC5 = 5 * num_anchors + num_classes
+    self.pred_layer = nn.Sequential(
+      nn.Conv2d(in_dim, hidden_dim, 1),
+      nn.Dropout(drop_ratio),
+      nn.LeakyReLU(),
+      nn.Conv2d(hidden_dim, AC5, 1)
+    )
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -312,8 +316,26 @@ class PredictionNetwork(nn.Module):
     # and self._extract_class_scores to extract information for positive and   #
     # negative anchors specified by pos_anchor_idx and neg_anchor_idx.         #
     ############################################################################
-    # Replace "pass" statement with your code
-    pass
+    training = pos_anchor_idx is not None
+    A = self.num_anchors
+    B, indim, h, w = features.shape
+    if training:
+      x = self.pred_layer(features) # (B, A*5+C, 7, 7)
+      x_anchor = x[:,:A*5,:,:].view((B,A,5,h,w))
+      x_class = x[:,A*5:,:,:]
+      class_scores = self._extract_class_scores(x_class, pos_anchor_idx) # (M,C)
+      pos_anchors = self._extract_anchor_data(x_anchor, pos_anchor_idx) # (M,5)
+      neg_anchors = self._extract_anchor_data(x_anchor, neg_anchor_idx) # (M,5)
+
+      # (conf, tx, ty, tw, th)
+      conf_scores = torch.cat([pos_anchors, neg_anchors], dim=0)[:,0].unsqueeze(-1) # (2M,1)
+      conf_scores = torch.sigmoid(conf_scores) # (2M,1)
+      offsets = pos_anchors[:,1:] # (M,4)
+      tx_ty = torch.sigmoid(offsets[:,:2]) - 0.5 # offsets between -0.5 and 0.5
+      offsets = torch.cat([tx_ty, offsets[:, 2:]]) # (M,4)
+
+    else:
+      pass
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
