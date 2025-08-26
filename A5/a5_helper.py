@@ -495,6 +495,7 @@ def DetectionInference(detector, data_loader, dataset, idx_to_class, thresh=0.8,
       final_all = torch.cat((final_proposals[idx], \
         final_class[idx].float(), final_conf_scores[idx]), dim=-1).cpu()
       final_all.detach()
+      final_all.requires_grad = False
       resized_proposals = coord_trans(final_all, w_batch[idx], h_batch[idx])
 
       # write results to file for evaluation (use mAP API https://github.com/Cartucho/mAP for now...)
