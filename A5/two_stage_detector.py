@@ -434,14 +434,13 @@ class TwoStageDetector(nn.Module):
 
     # K = number of boxes
     # C = 1280 (features from FeatureExtractor)
-    print("features", features.shape)
-    print("proposals", proposals.shape)
     B,_,H,W = features.shape
     idxs = torch.arange(B, device=proposals.device)
     repeats = int(proposals.shape[0] / B)
     idxs = idxs.repeat_interleave(repeats) # (K,)
     proposals = torch.column_stack([idxs, proposals]) # (K,5)
     rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
+    print("rois", rois.shape)
     class_probs = self.cls_layer.forward(rois)
 
     cls_loss = F.cross_entropy(class_probs, GT_class)
