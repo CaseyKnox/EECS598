@@ -26,9 +26,13 @@ class ProposalModule(nn.Module):
     #       Determine the padding of the 3x3 conv layer given the output dim.    #
     ##############################################################################
     # Make sure that your region proposal module is called pred_layer
-    self.pred_layer = None      
-    # Replace "pass" statement with your code
-    pass
+    out_dim = self.num_anchors * 6
+    self.pred_layer = nn.Sequential(
+      nn.Conv2d(in_dim, hidden_dim, 3, padding=1),              # (B,256,H,W)
+      nn.Dropout2d(p=drop_ratio),
+      nn.LeakyReLU(),
+      nn.Conv2d(hidden_dim, out_dim, 1)              # (B,A*6,H,W)
+    )
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -104,8 +108,27 @@ class ProposalModule(nn.Module):
     # HINT: You can compute proposal coordinates using the GenerateProposal    #
     # function from the previous notebook.                                     #
     ############################################################################
-    # Replace "pass" statement with your code
-    pass
+    # Proposals contain (tx,ty,tw,th,obj,bg) 
+    A = self.num_anchors
+    B, indim, H, W = features.shape
+    x = self.pred_layer.forward(features)                # (B,A6,H,W)
+    x = x.view(B,self.num_anchors,6,H,W)                 # (B,A,6,H,W)
+
+    # Extract data from prediction
+    if mode == "train":
+      pos_pred = self._extract_anchor_data(x, pos_anchor_idx)       # (M,D)
+      neg_pred = self._extract_anchor_data(x, neg_anchor_idx)       # (M,D)
+      pos_offsets = pos_pred[:,:4]                                  # (M,4) 
+      pos_logits  = pos_pred[:,4:]                                  # (M,2)
+      neg_logits  = neg_pred[:,4:]                                  # (M,2)
+
+      proposals   = GenerateProposal(pos_anchor_coord, pos_offsets) # (M,4)
+      conf_scores = torch.cat([pos_logits, neg_logits], dim=0)      # (2M,2)
+      offsets = pos_offsets
+    else:
+      conf_scores = x[:,:,4:,:,:] # (B,A,2,H,W)
+      offsets     = x[:,:,:4,:,:] # (B,A,4,H,W)
+
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
