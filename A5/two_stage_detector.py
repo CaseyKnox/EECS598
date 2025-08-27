@@ -348,8 +348,8 @@ class RPN(nn.Module):
       K = mask.sum().item()
 
       if K == 0:
-        final_proposals.append(torch.empty(0,4), device=proposals_all.device, dtype=proposals_all.dtype)
-        final_conf_probs.append(torch.empty(0,1), device=obj_probs.device, dtype=obj_probs.dtype)
+        final_proposals.append(torch.empty(0,4, device=proposals_all.device, dtype=proposals_all.dtype))
+        final_conf_probs.append(torch.empty(0,1, device=obj_probs.device, dtype=obj_probs.dtype))
         continue
 
       # Gather proposals and probs
