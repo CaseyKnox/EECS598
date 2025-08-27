@@ -434,6 +434,8 @@ class TwoStageDetector(nn.Module):
 
     # K = number of boxes
     # C = 1280 (features from FeatureExtractor)
+    B,_,H,W = features.shape
+    proposals = torch.cat([torch.arange(B), proposals]) # (K,5)
     rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
     class_probs = self.cls_layer.forward(rois)
 
