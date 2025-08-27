@@ -320,8 +320,46 @@ class RPN(nn.Module):
     # Then, apply NMS to the filtered proposals given the threshold `nms_thresh`.#
     # HINT: Use `torch.no_grad` as context to speed up the computation.          #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    # i) image feature extraction
+    B, _, H, W = images.shape
+    features = self.feat_extractor(images) # (B,1280,7,7)
+
+    # ii) grid and anchor generation
+    grid = GenerateGrid(B, device=images.device)
+    anchors = GenerateAnchor(self.anchor_list.to(images.device), grid) # (B,A,H,W,4)
+    
+    # iv) Region proposal
+    # (B,A,2,H,W) (B,A,4,H,W)
+    conf_scores, offsets = self.prop_module(features) 
+    offsets = offsets.permute(0,1,3,4,2).contiguous()                       # (B,A,H,W,4)
+    proposals_all = GenerateProposal(anchors, offsets, method="FasterRCNN") # (B,A,H,W,4)
+
+    # TODO check correct indexing. Assuming obj, bg but it could be reversed
+    obj_scores = conf_scores[:,:,0,:,:]        # (B,A,H,W)
+    bg_scores = conf_scores[:,:,1,:,:]         # (B,A,H,W)
+
+    obj_probs = torch.sigmoid(obj_scores)      # (B,A,H,W)
+    bg_probs = torch.sigmoid(bg_scores)        # (B,A,H,W)
+    
+    final_proposals = []
+    final_conf_probs = []
+    for i in range(B):
+      mask = (obj_probs[i] > thresh)              # (A,H,W)
+      K = mask.sum().item()
+
+      if K == 0:
+        final_proposals.append(torch.empty(0,4), device=proposals_all.device, dtype=proposals_all.dtype)
+        final_conf_probs.append(torch.empty(0,1), device=obj_probs.device, dtype=obj_probs.dtype)
+        continue
+
+      # Gather proposals and probs
+      proposals_filt = proposals_all[i][mask]  # (K,4)
+      probs = obj_probs[i][mask]               # (K,)
+
+      keep = torchvision.ops.nms(proposals_filt, probs, nms_thresh) # (L,)
+      final_proposals.append(proposals_filt[keep])                  # (L,4)
+      final_conf_probs.append(probs[keep])                          # (L,)
+
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
