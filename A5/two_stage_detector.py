@@ -252,15 +252,15 @@ class RPN(nn.Module):
     # iii) IoU between anchors and GT bboxes
     iou_mat = IoU(anchors, bboxes) # (B,M,N)
     (
-      act_anchor_idx, neg_anchor_idx, gt_conf_scores, 
-      gt_offsets, gt_class, act_anc_coord, neg_anc_coord
+      pos_anchor_idx, neg_anchor_idx, gt_conf_scores, 
+      gt_offsets, GT_class, act_anc_coord, neg_anc_coord
     ) = ReferenceOnActivatedAnchors(anchors, bboxes, grid, iou_mat)
     
     # iv) Region proposal
     conf_scores, offsets, proposals = self.prop_module(
       features, 
       act_anc_coord, 
-      act_anchor_idx, 
+      pos_anchor_idx, 
       neg_anchor_idx
     )
 
@@ -437,11 +437,11 @@ class TwoStageDetector(nn.Module):
     B,_,H,W = features.shape
     idxs = torch.arange(B, device=proposals.device)
     repeats = int(proposals.shape[0] / B)
-    idxs = idxs.repeat_interleave(repeats) # (K,)
-    proposals = torch.column_stack([idxs, proposals]) # (K,5)
+    idxs = idxs.repeat_interleave(repeats)                       # (K,)
+    proposals = torch.column_stack([idxs, proposals])            # (K,5)
     rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
-    print("rois", rois.shape)
-    class_probs = self.cls_layer.forward(rois)
+    rois_meanpool = rois.mean(dims=(2,3))                        # (K, C)
+    class_probs = self.cls_layer.forward(rois_meanpool)
 
     cls_loss = F.cross_entropy(class_probs, GT_class)
     total_loss = rpn_loss + cls_loss
