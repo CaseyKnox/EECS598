@@ -109,6 +109,7 @@ class ProposalModule(nn.Module):
     # function from the previous notebook.                                     #
     ############################################################################
     # Proposals contain (tx,ty,tw,th,obj,bg) 
+    """
     A = self.num_anchors
     B, indim, H, W = features.shape
     x = self.pred_layer.forward(features)                # (B,A6,H,W)
@@ -128,6 +129,34 @@ class ProposalModule(nn.Module):
     else:
       conf_scores = x[:,:,4:,:,:] # (B,A,2,H,W)
       offsets     = x[:,:,:4,:,:] # (B,A,4,H,W)
+    """
+    
+    x = self.pred_layer(features)                 # (B, 6A, H, W)
+    A = self.num_anchors
+    B, _, H, W = x.shape
+
+    # Split by blocks, not by (A,6)
+    raw_offsets = x[:, :4*A, :, :]                # (B, 4A, H, W)
+    raw_logits  = x[:, 4*A:, :, :]                # (B, 2A, H, W)
+
+    offsets_all = raw_offsets.view(B, A, 4, H, W) # (B, A, 4, H, W)
+    logits_all  = raw_logits.view(B, A, 2, H, W)  # (B, A, 2, H, W)
+
+    if mode == "train":
+        pos_pred = self._extract_anchor_data(torch.cat([offsets_all, logits_all], dim=2), pos_anchor_idx)  # (M, 6)
+        neg_pred = self._extract_anchor_data(torch.cat([offsets_all, logits_all], dim=2), neg_anchor_idx)  # (M, 6)
+
+        pos_offsets = pos_pred[:, :4]            # (M, 4)
+        pos_logits  = pos_pred[:, 4:]            # (M, 2)
+        neg_logits  = neg_pred[:, 4:]            # (M, 2)
+
+        proposals   = GenerateProposal(pos_anchor_coord, pos_offsets, method='FasterRCNN')
+        conf_scores = torch.cat([pos_logits, neg_logits], dim=0)
+        offsets     = pos_offsets
+    else:
+        conf_scores = logits_all                 # (B, A, 2, H, W)
+        offsets     = offsets_all                # (B, A, 4, H, W)
+
 
     ##############################################################################
     #                               END OF YOUR CODE                             #
