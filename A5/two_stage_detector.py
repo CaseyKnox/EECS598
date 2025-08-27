@@ -358,7 +358,7 @@ class RPN(nn.Module):
 
       keep = torchvision.ops.nms(proposals_filt, probs, nms_thresh) # (L,)
       final_proposals.append(proposals_filt[keep])                  # (L,4)
-      final_conf_probs.append(probs[keep].unsqeeeze(1))             # (L,1)
+      final_conf_probs.append(probs[keep].unsqueeze(1))             # (L,1)
 
     print("final proposals length", len(final_proposals))
     print("final conf length", len(final_conf_probs))
