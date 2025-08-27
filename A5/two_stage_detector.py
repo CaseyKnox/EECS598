@@ -2,6 +2,7 @@ import time
 import math
 import torch 
 import torch.nn as nn
+import torch.nn.functional as F
 from torch import optim
 import torchvision
 from a5_helper import *
@@ -387,11 +388,13 @@ class TwoStageDetector(nn.Module):
     # hidden_dim -> num_classes.                                                 #
     ##############################################################################
     # Your RPN and classification layers should be named as follows
-    self.rpn = None
-    self.cls_layer = None
-
-    # Replace "pass" statement with your code
-    pass
+    self.rpn = RPN()
+    self.cls_layer = nn.Sequential(
+      nn.Linear(in_dim, hidden_dim),
+      nn.Dropout(p=drop_ratio),
+      nn.ReLU(),
+      nn.Linear(hidden_dim, num_classes)
+    )
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -424,8 +427,18 @@ class TwoStageDetector(nn.Module):
     # v) Compute the total_loss which is formulated as:                          #
     #    total_loss = rpn_loss + cls_loss.                                       #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    (
+      rpn_loss, conf_scores, proposals, 
+      features, GT_class, pos_anchor_idx, anc_per_img
+    ) = self.rpn.forward(images, bboxes, output_mode="all")
+
+    # K = number of boxes
+    # C = 1280 (features from FeatureExtractor)
+    rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
+    class_probs = self.cls_layer.forward(rois)
+
+    cls_loss = F.cross_entropy(class_probs, GT_class)
+    total_loss = rpn_loss + cls_loss
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
