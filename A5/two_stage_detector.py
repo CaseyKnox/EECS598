@@ -437,7 +437,9 @@ class TwoStageDetector(nn.Module):
     print("features", features.shape)
     print("proposals", proposals.shape)
     B,_,H,W = features.shape
-    proposals = torch.column_stack([torch.arange(B, device=proposals.device), proposals]) # (K,5)
+    idxs = torch.arange(B, device=proposals.device)
+    idxs = idxs.repeat_interleave(proposals.shape[0] / B)
+    proposals = torch.column_stack([idxs, proposals]) # (K,5)
     rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
     class_probs = self.cls_layer.forward(rois)
 
