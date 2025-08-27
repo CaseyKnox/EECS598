@@ -112,7 +112,7 @@ class ProposalModule(nn.Module):
     A = self.num_anchors
     B, indim, H, W = features.shape
     x = self.pred_layer.forward(features)                # (B,A6,H,W)
-    x = x.view(B,6,self.num_anchors,H,W)                 # (B,A,6,H,W)
+    x = x.view(B,self.num_anchors,6,H,W)                 # (B,A,6,H,W)
 
     # Extract data from prediction
     if mode == "train":
