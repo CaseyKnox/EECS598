@@ -112,22 +112,22 @@ class ProposalModule(nn.Module):
     A = self.num_anchors
     B, indim, H, W = features.shape
     x = self.pred_layer.forward(features)                # (B,A6,H,W)
-    x = x.view(B,6,self.num_anchors,H,W).permute(0,2,1,3,4)                 # (B,A,6,H,W)
+    x = x.view(B,6,self.num_anchors,H,W)                 # (B,A,6,H,W)
 
     # Extract data from prediction
     if mode == "train":
       pos_pred = self._extract_anchor_data(x, pos_anchor_idx)       # (M,D)
       neg_pred = self._extract_anchor_data(x, neg_anchor_idx)       # (M,D)
-      pos_offsets = pos_pred[:,:4]                                  # (M,4) 
-      pos_logits  = pos_pred[:,4:]                                  # (M,2)
-      neg_logits  = neg_pred[:,4:]                                  # (M,2)
+      pos_offsets = pos_pred[:,2:]                                  # (M,4) 
+      pos_logits  = pos_pred[:,:2]                                  # (M,2)
+      neg_logits  = neg_pred[:,:2]                                  # (M,2)
 
       proposals   = GenerateProposal(pos_anchor_coord, pos_offsets) # (M,4)
       conf_scores = torch.cat([pos_logits, neg_logits], dim=0)      # (2M,2)
       offsets = pos_offsets
     else:
-      conf_scores = x[:,:,4:,:,:] # (B,A,2,H,W)
-      offsets     = x[:,:,:4,:,:] # (B,A,4,H,W)
+      conf_scores = x[:,:,:2,:,:] # (B,A,2,H,W)
+      offsets     = x[:,:,2:,:,:] # (B,A,4,H,W)
 
     ##############################################################################
     #                               END OF YOUR CODE                             #
