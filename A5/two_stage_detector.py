@@ -360,6 +360,8 @@ class RPN(nn.Module):
       final_proposals.append(proposals_filt[keep])                  # (L,4)
       final_conf_probs.append(probs[keep])                          # (L,)
 
+    print("final proposals length", len(final_proposals))
+    print("final conf length", len(final_conf_probs))
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
