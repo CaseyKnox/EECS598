@@ -108,7 +108,7 @@ class ProposalModule(nn.Module):
     # HINT: You can compute proposal coordinates using the GenerateProposal    #
     # function from the previous notebook.                                     #
     ############################################################################
-    # Proposals contain (tx,ty,tw,th,obj,bg) 
+    # Proposals contain (obj,bg,tx,ty,tw,th) 
     A = self.num_anchors
     B, indim, H, W = features.shape
     x = self.pred_layer.forward(features)                # (B,A6,H,W)
@@ -240,8 +240,34 @@ class RPN(nn.Module):
     # HINT: Do not apply thresholding nor NMS on the proposals during training   #
     #       as positive/negative anchors have been explicitly targeted.          #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    # i) image feature extraction
+    B, _, H, W = images.shape
+    features = self.feat_extractor(images) # (B,1280,7,7)
+
+    # ii) grid and anchor generation
+    grid = GenerateGrid(B, device=images.device)
+    anchors = GenerateAnchor(self.anchor_list.to(images.device), grid) # (B,A,H,W,4)
+
+    # iii) IoU between anchors and GT bboxes
+    iou_mat = IoU(anchors, bboxes) # (B,M,N)
+    (
+      act_anchor_idx, neg_anchor_idx, gt_conf_scores, 
+      gt_offsets, gt_class, act_anc_coord, neg_anc_coord
+    ) = ReferenceOnActivatedAnchors(anchors, bboxes, grid, iou_mat)
+    
+    # iv) Region proposal
+    conf_scores, offsets, proposals = self.prop_module(
+      features, 
+      act_anc_coord, 
+      act_anchor_idx, 
+      neg_anchor_idx
+    )
+
+    # v) loss
+    conf_loss  = ConfScoreRegression(conf_scores, B)
+    reg_loss   = BboxRegression(offsets, gt_offsets, B)
+    total_loss = w_conf * conf_loss + w_reg * reg_loss
+
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
