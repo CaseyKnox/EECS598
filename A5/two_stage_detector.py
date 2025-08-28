@@ -263,6 +263,7 @@ class RPN(nn.Module):
       pos_anchor_idx, 
       neg_anchor_idx
     )
+    anc_per_img = H * W * self.prop_module.num_anchors
 
     # v) loss
     conf_loss  = ConfScoreRegression(conf_scores, B)
@@ -436,9 +437,10 @@ class TwoStageDetector(nn.Module):
     # K = number of boxes
     # C = 1280 (features from FeatureExtractor)
     B,_,H,W = features.shape
-    idxs = torch.arange(B, device=proposals.device)
-    repeats = proposals.shape[0] // B
-    idxs = idxs.repeat_interleave(repeats)                       # (K,)
+    # idxs = torch.arange(B, device=proposals.device)
+    # repeats = proposals.shape[0] // B
+    # idxs = idxs.repeat_interleave(repeats)                       # (K,)
+    idxs = (pos_anchor_idx // anc_per_img).to(proposals.device)    # (K,)
     print("proposals", proposals.shape)
     print("idxs", idxs.shape)
     print("B", B)
