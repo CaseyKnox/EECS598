@@ -441,9 +441,9 @@ class TwoStageDetector(nn.Module):
       p_i = pos_proposals[i]
       K = len(p_i)
       idxs = torch.ones(K, device=p_i.device) * i 
+      print(f"Idxs, {idxs}")
       p_i = torch.column_stack([idxs, p_i])                      # (K, 5)
       print(f"{i} p_i {p_i.shape}")
-      print(f"Idxs, {idxs}")
       # C = 1280 (features from FeatureExtractor)
       rois = torchvision.ops.roi_align(features, p_i, (2,2))           # (K, C, 2, 2)
       print("rois", rois.shape)
