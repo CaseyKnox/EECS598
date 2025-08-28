@@ -310,7 +310,7 @@ def ReferenceOnActivatedAnchors(anchors, bboxes, grid, iou_mat, pos_thresh=0.7, 
     bboxes = bboxes[:, :4]
     activated_anc_ind = (activated_anc_ind / float(activated_anc_mask.shape[-1])).long()
 
-  print('number of pos proposals: ', activated_anc_ind.shape[0])
+  # print('number of pos proposals: ', activated_anc_ind.shape[0])
   activated_anc_coord = anchors.view(-1, 4)[activated_anc_ind]
 
   # GT offsets
