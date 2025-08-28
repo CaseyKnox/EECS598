@@ -434,6 +434,14 @@ class TwoStageDetector(nn.Module):
       features, GT_class, pos_anchor_idx, anc_per_img
     ) = self.rpn.forward(images, bboxes, output_mode="all")
 
+    # assume square stride
+    H_img, W_img = images.shape[-2:]
+    Hf,   Wf     = features[0].shape[-2:]
+    stride_h = H_img / Hf
+    stride_w = W_img / Wf
+    assert abs(stride_h - stride_w) < 1e-6, "non-square stride? handle separately"
+    stride = stride_h
+
     # K = number of boxes
     # C = 1280 (features from FeatureExtractor)
     B,_,H,W = features.shape
@@ -447,7 +455,12 @@ class TwoStageDetector(nn.Module):
     # print("anc_per_img", anc_per_img)
     # print("pos_anchor_idx", pos_anchor_idx.shape)
     proposals = torch.column_stack([idxs, proposals])            # (K,5)
-    rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
+    rois = torchvision.ops.roi_align(
+      features, 
+      proposals, 
+      (2,2),
+      spatial_scale = 1.0/stride
+    ) # (K, C, 2, 2)
     rois_meanpool = torch.mean(rois, dim=(2,3))                 # (K, C)
     class_probs = self.cls_layer.forward(rois_meanpool)
 
@@ -494,6 +507,14 @@ class TwoStageDetector(nn.Module):
     ##############################################################################
     # [B,(P,4)] [B,(P,)] (B,D,H,W)
     proposals, final_conf_probs, features = self.rpn.inference(images, thresh, nms_thresh, mode="FasterRCNN")
+
+    # assume square stride
+    H_img, W_img = images.shape[-2:]
+    Hf,   Wf     = features[0].shape[-2:]
+    stride_h = H_img / Hf
+    stride_w = W_img / Wf
+    assert abs(stride_h - stride_w) < 1e-6, "non-square stride? handle separately"
+    stride = stride_h
 
     B = len(features)
     final_class = []
