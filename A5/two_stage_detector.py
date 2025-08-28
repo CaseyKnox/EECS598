@@ -439,6 +439,9 @@ class TwoStageDetector(nn.Module):
     idxs = torch.arange(B, device=proposals.device)
     repeats = proposals.shape[0] // B
     idxs = idxs.repeat_interleave(repeats)                       # (K,)
+    print("proposals", proposals.shape)
+    print("idxs", idxs.shape)
+    print("B", B)
     proposals = torch.column_stack([idxs, proposals])            # (K,5)
     rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
     rois_meanpool = torch.mean(rois, dim=(2,3))                 # (K, C)
