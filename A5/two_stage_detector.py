@@ -501,7 +501,7 @@ class TwoStageDetector(nn.Module):
       rois = torchvision.ops.roi_align(features, p_i, (2,2))       # (K, C, 2, 2)
       rois_meanpool = torch.mean(rois, dim=(2,3))                  # (K, C)
       class_probs = self.cls_layer.forward(rois_meanpool)          # (K, num_classes)
-      class_per_box = class_probs.argmax(dim=-1)                   # (K)
+      class_per_box = class_probs.argmax(dim=-1).unsqueeze(-1)     # (K)
       final_class.append(class_per_box)
 
     final_proposals = proposals
