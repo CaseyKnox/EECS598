@@ -488,15 +488,14 @@ class TwoStageDetector(nn.Module):
     # [B,(P,4)] [B,(P,)] (B,D,H,W)
     proposals, final_conf_probs, features = self.rpn.inference(images, thresh, nms_thresh)
 
-    B,_,H,W = features.shape
+    B = len(features)
     final_class = []
     for i in range(B):
       # Get proposals for batch i and prepare for roi_align
       p_i = proposals[i]
       K = len(p_i) # number of bboxes
       idxs = torch.ones(K, device=p_i.device) * i 
-      p_i = torch.column_stack([idxs, p_i],
-                               device=p_i.device)                  # (K,5)
+      p_i = torch.column_stack([idxs, p_i])                        # (K,5)
 
       # C = 1280 (features from FeatureExtractor)
       rois = torchvision.ops.roi_align(features, p_i, (2,2))       # (K, C, 2, 2)
