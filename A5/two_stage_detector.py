@@ -427,22 +427,29 @@ class TwoStageDetector(nn.Module):
     # v) Compute the total_loss which is formulated as:                          #
     #    total_loss = rpn_loss + cls_loss.                                       #
     ##############################################################################
+    # Get regions via RPN network
     (
       rpn_loss, conf_scores, proposals, 
       features, GT_class, pos_anchor_idx, anc_per_img
     ) = self.rpn.forward(images, bboxes, output_mode="all")
+    pos_proposals = proposals[pos_anchor_idx]
 
-    # K = number of boxes
-    # C = 1280 (features from FeatureExtractor)
+    # Get class probabilities per image
     B,_,H,W = features.shape
-    idxs = torch.arange(B, device=proposals.device)
-    repeats = int(proposals.shape[0] / B)
-    idxs = idxs.repeat_interleave(repeats)                       # (K,)
-    proposals = torch.column_stack([idxs, proposals])            # (K,5)
-    rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
-    rois_meanpool = torch.mean(rois, dim=(2,3))                 # (K, C)
-    class_probs = self.cls_layer.forward(rois_meanpool)
+    class_probs_all = []
+    for i in range(B):
+      p_i = pos_proposals[i]
+      K = len(p_i)
+      idxs = torch.ones(K) * i 
+      p_i = torch.column_stack([idxs, pos_proposals])                  # (K, 5)
+      # C = 1280 (features from FeatureExtractor)
+      rois = torchvision.ops.roi_align(features, p_i, (2,2))           # (K, C, 2, 2)
+      rois_meanpool = torch.mean(rois, dim=(2,3))                      # (K, C)
+      class_probs = self.cls_layer.forward(rois_meanpool)              # (K, num_classes)
+      class_probs_all.append(class_probs)
 
+    # Compute Loss
+    class_probs_all = torch.cat(class_probs_all)                       # (M,num_classes)
     cls_loss = F.cross_entropy(class_probs, GT_class)
     total_loss = rpn_loss + cls_loss
     ##############################################################################
@@ -484,8 +491,26 @@ class TwoStageDetector(nn.Module):
     # to compute final_proposals and final_conf_probs. Use the predicted class  #
     # probabilities from the second-stage network to compute final_class.       #
     ##############################################################################
-    # Replace "pass" statement with your code
-    pass
+    # [B,(P,4)] [B,(P,)] (B,D,H,W)
+    proposals, final_conf_probs, features = self.rpn.inference(images, thresh, nms_thresh)
+
+    B,_,H,W = features.shape
+    final_class = []
+    for i in range(B):
+      # Get proposals for batch i and prepare for roi_align
+      p_i = proposals[i]
+      K = len(p_i) # number of bboxes
+      idxs = torch.ones(K) * i
+      p_i = torch.column_stack([idxs, p_i])                        # (K,5)
+
+      # C = 1280 (features from FeatureExtractor)
+      rois = torchvision.ops.roi_align(features, p_i, (2,2))       # (K, C, 2, 2)
+      rois_meanpool = torch.mean(rois, dim=(2,3))                  # (K, C)
+      class_probs = self.cls_layer.forward(rois_meanpool)          # (K, num_classes)
+      class_per_box = class_probs.argmax(dim=-1)                   # (K)
+      final_class.append(class_per_box)
+
+    final_proposals = proposals
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
