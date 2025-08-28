@@ -486,19 +486,19 @@ class TwoStageDetector(nn.Module):
     # probabilities from the second-stage network to compute final_class.       #
     ##############################################################################
     # [B,(P,4)] [B,(P,)] (B,D,H,W)
-    proposals, final_conf_probs, features = self.rpn.inference(images, thresh, nms_thresh)
+    proposals, final_conf_probs, features = self.rpn.inference(images, thresh, nms_thresh, mode="FasterRCNN")
 
     B = len(features)
     final_class = []
     for i in range(B):
       # Get proposals for batch i and prepare for roi_align
-      p_i = proposals[i]
-      K = len(p_i) # number of bboxes
-      idxs = torch.ones(K, device=p_i.device) * i 
-      p_i = torch.column_stack([idxs, p_i])                        # (K,5)
+      p_i = proposals[i] # (K,4)
+      # K = len(p_i) # number of bboxes
+      # idxs = torch.ones(K, device=p_i.device) * i 
+      # p_i = torch.column_stack([idxs, p_i])                        # (K,5)
 
       # C = 1280 (features from FeatureExtractor)
-      rois = torchvision.ops.roi_align(features, p_i, (2,2))       # (K, C, 2, 2)
+      rois = torchvision.ops.roi_align(features[i], p_i, (2,2))       # (K, C, 2, 2)
       rois_meanpool = torch.mean(rois, dim=(2,3))                  # (K, C)
       class_probs = self.cls_layer.forward(rois_meanpool)          # (K, num_classes)
       class_per_box = class_probs.argmax(dim=-1)                   # (K)
