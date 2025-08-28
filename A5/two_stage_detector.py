@@ -440,18 +440,21 @@ class TwoStageDetector(nn.Module):
     for i in range(B):
       p_i = pos_proposals[i]
       K = len(p_i)
-      idxs = torch.ones(K) * i 
-      p_i = torch.column_stack([idxs, p_i], 
-                               device=p_i.device)                      # (K, 5)
+      idxs = torch.ones(K, device=p_i.device) * i 
+      p_i = torch.column_stack([idxs, p_i])                      # (K, 5)
       print(f"{i} p_i {p_i.shape}")
+      print(f"Idxs, {idxs}")
       # C = 1280 (features from FeatureExtractor)
       rois = torchvision.ops.roi_align(features, p_i, (2,2))           # (K, C, 2, 2)
+      print("rois", rois.shape)
       rois_meanpool = torch.mean(rois, dim=(2,3))                      # (K, C)
       class_probs = self.cls_layer.forward(rois_meanpool)              # (K, num_classes)
+      print("class_probs", class_probs.shape)
       class_probs_all.append(class_probs)
 
     # Compute Loss
     class_probs_all = torch.cat(class_probs_all)                       # (M,num_classes)
+    print("class_probs_all", class_probs_all.shape)
     cls_loss = F.cross_entropy(class_probs, GT_class)
     total_loss = rpn_loss + cls_loss
     ##############################################################################
@@ -502,7 +505,7 @@ class TwoStageDetector(nn.Module):
       # Get proposals for batch i and prepare for roi_align
       p_i = proposals[i]
       K = len(p_i) # number of bboxes
-      idxs = torch.ones(K) * i
+      idxs = torch.ones(K, device=p_i.device) * i 
       p_i = torch.column_stack([idxs, p_i],
                                device=p_i.device)                  # (K,5)
 
