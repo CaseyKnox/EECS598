@@ -432,29 +432,18 @@ class TwoStageDetector(nn.Module):
       rpn_loss, conf_scores, proposals, 
       features, GT_class, pos_anchor_idx, anc_per_img
     ) = self.rpn.forward(images, bboxes, output_mode="all")
-    pos_proposals = proposals[pos_anchor_idx]
 
-    # Get class probabilities per image
+    # K = number of boxes
+    # C = 1280 (features from FeatureExtractor)
     B,_,H,W = features.shape
-    class_probs_all = []
-    for i in range(B):
-      p_i = pos_proposals[i]
-      K = len(p_i)
-      idxs = torch.ones(K, device=p_i.device) * i 
-      print(f"Idxs, {idxs}")
-      p_i = torch.column_stack([idxs, p_i])                      # (K, 5)
-      print(f"{i} p_i {p_i.shape}")
-      # C = 1280 (features from FeatureExtractor)
-      rois = torchvision.ops.roi_align(features, p_i, (2,2))           # (K, C, 2, 2)
-      print("rois", rois.shape)
-      rois_meanpool = torch.mean(rois, dim=(2,3))                      # (K, C)
-      class_probs = self.cls_layer.forward(rois_meanpool)              # (K, num_classes)
-      print("class_probs", class_probs.shape)
-      class_probs_all.append(class_probs)
+    idxs = torch.arange(B, device=proposals.device)
+    repeats = int(proposals.shape[0] / B)
+    idxs = idxs.repeat_interleave(repeats)                       # (K,)
+    proposals = torch.column_stack([idxs, proposals])            # (K,5)
+    rois = torchvision.ops.roi_align(features, proposals, (2,2)) # (K, C, 2, 2)
+    rois_meanpool = torch.mean(rois, dim=(2,3))                 # (K, C)
+    class_probs = self.cls_layer.forward(rois_meanpool)
 
-    # Compute Loss
-    class_probs_all = torch.cat(class_probs_all)                       # (M,num_classes)
-    print("class_probs_all", class_probs_all.shape)
     cls_loss = F.cross_entropy(class_probs, GT_class)
     total_loss = rpn_loss + cls_loss
     ##############################################################################
