@@ -443,6 +443,7 @@ class TwoStageDetector(nn.Module):
       idxs = torch.ones(K) * i 
       p_i = torch.column_stack([idxs, p_i], 
                                device=p_i.device)                      # (K, 5)
+      print(f"{i} p_i {p_i.shape}", )
       # C = 1280 (features from FeatureExtractor)
       rois = torchvision.ops.roi_align(features, p_i, (2,2))           # (K, C, 2, 2)
       rois_meanpool = torch.mean(rois, dim=(2,3))                      # (K, C)
