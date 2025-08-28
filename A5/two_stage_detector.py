@@ -505,9 +505,9 @@ class TwoStageDetector(nn.Module):
       final_class.append(class_per_box)
 
     final_proposals = proposals
-    print("final_proposals", len(final_proposals), final_proposals[0].shape)
-    print("final_conf_probs", len(final_conf_probs), final_conf_probs[0].shape)
-    print("final_class", len(final_class), final_class[0].shape)
+    print("final_proposals", final_proposals)
+    print("final_conf_probs", final_conf_probs)
+    print("final_class", final_class)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
