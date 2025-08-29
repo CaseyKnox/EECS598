@@ -55,11 +55,11 @@ class VAE(nn.Module):
         ############################################################################################
         self.decoder = nn.Sequential(
             nn.Linear(Z, H_d),
-            nn.ReLU,
+            nn.ReLU(),
             nn.Linear(H_d, H_d),
-            nn.ReLU,
+            nn.ReLU(),
             nn.Linear(H_d, H_d),
-            nn.ReLU,
+            nn.ReLU(),
             nn.Linear(H_d, self.input_size),
             nn.Sigmoid(),
             nn.Unflatten(1, (H,W))
