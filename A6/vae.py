@@ -227,16 +227,15 @@ def loss_function(x_hat, x, mu, logvar):
     # Loss is negative reconstruction loss + KL divergence
 
     recon_loss = F.binary_cross_entropy(x_hat, x)      # (1,)
-    print("Recon loss", recon_loss)
 
     # KL Divergence
     elem = 1 + logvar - mu * mu - torch.exp(logvar)    # (N,Z)
 
     # sum along the Z dim
     divergence_batched = -0.5 * torch.sum(elem, dim=1) # (N,)
-    divergence = divergence_batched.mean()
+    divergence = divergence_batched.mean()             # (1,)
 
-    loss = divergence - recon_loss
+    loss = recon_loss + divergence
     ################################################################################################
     #                            END OF YOUR CODE                                                  #
     ################################################################################################
