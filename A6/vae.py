@@ -224,18 +224,13 @@ def loss_function(x_hat, x, mu, logvar):
     ################################################################################################
     # TODO: Compute negative variational lowerbound loss as described in the notebook              #
     ################################################################################################
-    # Loss is negative reconstruction loss + KL divergence
+    # Reconstruction: sum over pixels per sample, then mean over the batch
+    recon = F.binary_cross_entropy(x_hat, x, reduction="sum") / x.shape[0]    # (1,)
 
-    recon_loss = F.binary_cross_entropy(x_hat, x, reduction="sum") / x.size(0)     # (1,)
+    # KL: sum over latent dims per sample, then mean over batch
+    kl = -0.5 * (1 + logvar - mu.pow(2) - torch.exp(logvar)).sum(dim=1).mean()    # (N,Z)
 
-    # KL Divergence
-    elem = 1 + logvar - mu * mu - torch.exp(logvar)    # (N,Z)
-
-    # sum along the Z dim
-    kl = -0.5 * torch.sum(elem, dim=1) # (N,)
-    kl = kl.mean()             # (1,)
-
-    loss = recon_loss + kl
+    loss = recon + kl
     ################################################################################################
     #                            END OF YOUR CODE                                                  #
     ################################################################################################
