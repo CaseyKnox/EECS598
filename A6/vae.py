@@ -34,15 +34,36 @@ class VAE(nn.Module):
         # features into estimates of the mean and log-variance of the posterior over the latent    #
         # vectors; the mean and log-variance estimates will both be tensors of shape (N, Z).       #
         ############################################################################################
-        # Replace "pass" statement with your code
-        pass
+        self.hidden_dim = 128
+        H_d = self.hidden_dim
+        Z = self.latent_size
+        H,W = 28,28
+        self.encoder = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(self.input_size, H_d),
+            nn.ReLU(),
+            nn.Linear(H_d, H_d),
+            nn.ReLU(),
+            nn.Linear(H_d, H_d),
+        )
+        self.mu_layer = nn.Linear(H_d, Z)
+        self.logvar_layer = nn.Linear(H_d, Z)
         ############################################################################################
         # TODO: Implement the fully-connected decoder architecture described in the notebook.      #
         # Specifically, self.decoder should be a network that inputs a batch of latent vectors of  #
         # shape (N, Z) and outputs a tensor of estimated images of shape (N, 1, H, W).             #
         ############################################################################################
-        # Replace "pass" statement with your code
-        pass
+        self.decoder = nn.Sequential(
+            nn.Linear(Z, H_d),
+            nn.ReLU,
+            nn.Linear(H_d, H_d),
+            nn.ReLU,
+            nn.Linear(H_d, H_d),
+            nn.ReLU,
+            nn.Linear(H_d, self.input_size),
+            nn.Sigmoid(),
+            nn.Unflatten(1, (H,W))
+        )
         ############################################################################################
         #                                      END OF YOUR CODE                                    #
         ############################################################################################
@@ -169,8 +190,9 @@ def reparametrize(mu, logvar):
     # TODO: Reparametrize by initializing epsilon as a normal distribution and scaling by          #
     # posterior mu and sigma to estimate z                                                         #
     ################################################################################################
-    # Replace "pass" statement with your code
-    pass
+    eps = torch.randn_like(mu)
+    sigma = torch.exp(0.5 * logvar) # std
+    z = sigma * eps + mu
     ################################################################################################
     #                              END OF YOUR CODE                                                #
     ################################################################################################
