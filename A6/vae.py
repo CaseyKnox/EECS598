@@ -91,8 +91,16 @@ class VAE(nn.Module):
         # (2) Reparametrize to compute  the latent vector z                                        #
         # (3) Pass z through the decoder to resconstruct x                                         #
         ############################################################################################
-        # Replace "pass" statement with your code
-        pass
+        # Encoder
+        enc = self.encoder.forward(x)           # (N, H_d)
+        mu = self.mu_layer.forward(enc)         # (N, Z)
+        logvar = self.logvar_layer.forward(enc) # (N, Z)
+
+        # Latent vector Z
+        z = reparametrize(mu, logvar)           # (N, Z)
+
+        # Decoder
+        x_hat = self.decoder.forward(z)         # (N, 1, H, W)
         ############################################################################################
         #                                      END OF YOUR CODE                                    #
         ############################################################################################
@@ -216,8 +224,19 @@ def loss_function(x_hat, x, mu, logvar):
     ################################################################################################
     # TODO: Compute negative variational lowerbound loss as described in the notebook              #
     ################################################################################################
-    # Replace "pass" statement with your code
-    pass
+    # Loss is negative reconstruction loss + KL divergence
+
+    recon_loss = F.binary_cross_entropy(x_hat, x)      # (1,)
+    print("Recon loss", recon_loss)
+
+    # KL Divergence
+    elem = 1 + logvar - mu * mu - torch.exp(logvar)    # (N,Z)
+
+    # sum along the Z dim
+    divergence_batched = -0.5 * torch.sum(elem, dim=1) # (N,)
+    divergence = divergence_batched.mean()
+
+    loss = divergence - recon_loss
     ################################################################################################
     #                            END OF YOUR CODE                                                  #
     ################################################################################################
