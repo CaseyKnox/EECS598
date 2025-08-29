@@ -62,7 +62,7 @@ class VAE(nn.Module):
             nn.ReLU(),
             nn.Linear(H_d, self.input_size),
             nn.Sigmoid(),
-            nn.Unflatten(1, (H,W))
+            nn.Unflatten(1, (1,H,W))
         )
         ############################################################################################
         #                                      END OF YOUR CODE                                    #
