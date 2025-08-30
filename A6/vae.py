@@ -146,7 +146,7 @@ class CVAE(nn.Module):
         ############################################################################################
         H,W = 28,28
         self.decoder = nn.Sequential(
-            nn.Linear(H_d + C, H_d),
+            nn.Linear(Z + C, H_d),
             nn.ReLU(),
             nn.Linear(H_d, H_d),
             nn.ReLU(),
@@ -193,9 +193,12 @@ class CVAE(nn.Module):
         # print("xc", xc.shape)
 
         # Forward Pass
-        z = self.encoder.forward(xc)          # (N, Z) latent space of size Z
-        mu = self.mu_layer.forward(z)         # (N, Z)
-        logvar = self.logvar_layer.forward(z) # (N, Z)
+        enc = self.encoder.forward(xc)          # (N, Z) latent space of size Z
+        mu = self.mu_layer.forward(enc)         # (N, Z)
+        logvar = self.logvar_layer.forward(enc) # (N, Z)
+
+        # Latent vector Z
+        z = reparametrize(mu, logvar)           # (N, Z)
 
         # Decoder
         zc = torch.cat([z, c], dim=1)   # (N, Z + C)
