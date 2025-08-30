@@ -187,6 +187,8 @@ class CVAE(nn.Module):
 
         # Prepare input concatenated x + c
         x_flat = x.flatten(start_dim=1) # (N, H*W)
+        print(x_flat.shape)
+        print(c.shape)
         xc     = torch.cat([x_flat, c]) # (N, H*W + C)
 
         # Forward Pass
