@@ -108,7 +108,7 @@ def discriminator_loss(logits_real, logits_fake):
   fake_labels = torch.zeros(N, dtype=dtype, device=device)
   labels = torch.cat([real_labels, fake_labels])            # (2N,)
   pred = torch.cat([logits_real, logits_fake])              # (2N,)
-  loss = F.binary_cross_entropy_with_logits(pred, labels, reduction="sum") / 2*N
+  loss = F.binary_cross_entropy_with_logits(pred, labels)
   ##############################################################################
   #                              END OF YOUR CODE                              #
   ##############################################################################
