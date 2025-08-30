@@ -125,15 +125,37 @@ class CVAE(nn.Module):
         # (N, H_d) feature space, and a final two layers that project that feature space           #
         # to posterior mu and posterior log-variance estimates of the latent space (N, Z)          #
         ############################################################################################
-        # Replace "pass" statement with your code
-        pass
+        M = self.input_size + self.num_classes
+        self.hidden_dim = 128
+        H_d = self.hidden_dim
+        Z = self.latent_size
+        C = self.num_classes
+        self.encoder = nn.Sequential(
+            nn.Linear(M, H_d),
+            nn.ReLU(),
+            nn.Linear(H_d, H_d),
+            nn.ReLU(),
+            nn.Linear(H_d, H_d),
+        )
+        self.mu_layer = nn.Linear(H_d, Z)
+        self.logvar_layer = nn.Linear(H_d, Z)
 
         ############################################################################################
         # TODO: Define a fully-connected decoder as described in the notebook that transforms the  #
         # latent space (N, Z + C) to the estimated images of shape (N, 1, H, W).                   #
         ############################################################################################
-        # Replace "pass" statement with your code
-        pass
+        H,W = 28,28
+        self.decoder = nn.Sequential(
+            nn.Linear(Z + C, H_d),
+            nn.ReLU(),
+            nn.Linear(H_d, H_d),
+            nn.ReLU(),
+            nn.Linear(H_d, H_d),
+            nn.ReLU(),
+            nn.Linear(H_d, self.input_size),
+            nn.Sigmoid(),
+            nn.Unflatten(1, (1,H,W))
+        )
         ############################################################################################
         #                                      END OF YOUR CODE                                    #
         ############################################################################################
@@ -162,8 +184,20 @@ class CVAE(nn.Module):
         # (2) Reparametrize to compute the latent vector z                                         #
         # (3) Pass concatenation of z and one hot vectors through the decoder to resconstruct x    #
         ############################################################################################
-        # Replace "pass" statement with your code
-        pass
+
+        # Prepare input concatenated x + c
+        x_flat = x.flatten(start_dim=1) # (N, H*W)
+        xc     = torch.cat([x_flat, c]) # (N, H*W + C)
+
+        # Forward Pass
+        z = self.encoder.forward(xc)          # (N, Z) latent space of size Z
+        mu = self.mu_layer.forward(z)         # (N, Z)
+        logvar = self.logvar_layer.forward(z) # (N, Z)
+
+        # Decoder
+        zc = torch.cat([z, c])   # (N, Z + C)
+        x_hat = self.decoder.forward(zc) # (N, 1, H, W)
+
         ############################################################################################
         #                                      END OF YOUR CODE                                    #
         ############################################################################################
