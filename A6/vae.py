@@ -146,7 +146,7 @@ class CVAE(nn.Module):
         ############################################################################################
         H,W = 28,28
         self.decoder = nn.Sequential(
-            nn.Linear(Z + C, H_d),
+            nn.Linear(H_d + C, H_d),
             nn.ReLU(),
             nn.Linear(H_d, H_d),
             nn.ReLU(),
@@ -188,9 +188,9 @@ class CVAE(nn.Module):
         # Prepare input concatenated x + c
         x_flat = x.flatten(start_dim=1) # (N, H*W)
         xc     = torch.cat([x_flat, c], dim=1) # (N, H*W + C)
-        print("x_flat", x_flat.shape)
-        print("c", c.shape)
-        print("xc", xc.shape)
+        # print("x_flat", x_flat.shape)
+        # print("c", c.shape)
+        # print("xc", xc.shape)
 
         # Forward Pass
         z = self.encoder.forward(xc)          # (N, Z) latent space of size Z
@@ -199,7 +199,7 @@ class CVAE(nn.Module):
 
         # Decoder
         zc = torch.cat([z, c], dim=1)   # (N, Z + C)
-        print("zc", zc.shape)
+        # print("zc", zc.shape)
         x_hat = self.decoder.forward(zc) # (N, 1, H, W)
 
         ############################################################################################
