@@ -101,10 +101,12 @@ def discriminator_loss(logits_real, logits_fake):
   ##############################################################################
   real_labels = torch.ones_like(logits_real)
   fake_labels = torch.zeros_like(logits_fake)
-  labels = torch.cat([real_labels, fake_labels])            # (2N,)
-  pred = torch.cat([logits_real, logits_fake])              # (2N,)
-  pred = torch.sigmoid(pred)
-  loss = F.binary_cross_entropy_with_logits(pred, labels)
+  # labels = torch.cat([real_labels, fake_labels])            # (2N,)
+  # pred = torch.cat([logits_real, logits_fake])              # (2N,)
+  loss_real = F.binary_cross_entropy_with_logits(logits_real, real_labels)
+  loss_fake = F.binary_cross_entropy_with_logits(logits_fake, fake_labels)
+  loss = loss_real + loss_fake
+  
   ##############################################################################
   #                              END OF YOUR CODE                              #
   ##############################################################################
