@@ -102,7 +102,7 @@ def discriminator_loss(logits_real, logits_fake):
   N = logits_real.shape
   dtype = logits_real.dtype
   device = logits_real.device
-  assert logit_fake.shape == N
+  assert logits_fake.shape == N
 
   real_labels = torch.ones(N, dtype=dtype, device=device)
   fake_labels = torch.zeros(N, dtype=dtype, device=device)
