@@ -189,7 +189,7 @@ class CVAE(nn.Module):
         x_flat = x.flatten(start_dim=1) # (N, H*W)
         print(x_flat.shape)
         print(c.shape)
-        xc     = torch.cat([x_flat, c]) # (N, H*W + C)
+        xc     = torch.cat([x_flat, c], dim=1) # (N, H*W + C)
 
         # Forward Pass
         z = self.encoder.forward(xc)          # (N, Z) latent space of size Z
