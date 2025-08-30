@@ -126,7 +126,7 @@ def generator_loss(logits_fake):
   ##############################################################################
   # TODO: Implement generator_loss.                                            #
   ##############################################################################
-  labels_fake = torch.zeros_like(logits_fake)
+  labels_fake = torch.ones_like(logits_fake)
   loss = F.binary_cross_entropy_with_logits(logits_fake, labels_fake)
   ##############################################################################
   #                              END OF YOUR CODE                              #
