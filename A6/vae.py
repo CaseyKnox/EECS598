@@ -187,9 +187,8 @@ class CVAE(nn.Module):
 
         # Prepare input concatenated x + c
         x_flat = x.flatten(start_dim=1) # (N, H*W)
-        print(x_flat.shape)
-        print(c.shape)
         xc     = torch.cat([x_flat, c], dim=1) # (N, H*W + C)
+        print(xc.shape)
 
         # Forward Pass
         z = self.encoder.forward(xc)          # (N, Z) latent space of size Z
@@ -197,7 +196,7 @@ class CVAE(nn.Module):
         logvar = self.logvar_layer.forward(z) # (N, Z)
 
         # Decoder
-        zc = torch.cat([z, c])   # (N, Z + C)
+        zc = torch.cat([z, c], dim=1)   # (N, Z + C)
         x_hat = self.decoder.forward(zc) # (N, 1, H, W)
 
         ############################################################################################
