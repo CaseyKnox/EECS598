@@ -170,7 +170,9 @@ def ls_discriminator_loss(scores_real, scores_fake):
   ##############################################################################
   # TODO: Implement ls_discriminator_loss.                                     #
   ##############################################################################
-  loss = torch.zeros_like(scores_real).mean() # tmp
+  y_real = torch.ones_like(scores_real)
+  # y_fake = torch.ones_like(scores_fake)
+  loss = 0.5 * (scores_real - y_real).pow(2).mean() + 0.5 * scores_fake.pow(2).mean()
   ##############################################################################
   #                              END OF YOUR CODE                              #
   ##############################################################################
