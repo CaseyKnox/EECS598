@@ -237,8 +237,21 @@ def build_dc_generator(noise_dim=NOISE_DIM):
   ############################################################################
   # TODO: Implement build_dc_generator.                                      #
   ############################################################################
-  # Replace "pass" statement with your code
-  pass
+  model = nn.Sequential(
+    nn.Linear(noise_dim, 1024),
+    nn.ReLU(),
+    nn.BatchNorm1d(1024),
+    nn.Linear(1024, 7*7*128),
+    nn.ReLU(),
+    nn.BatchNorm1d(7*7*128),
+    nn.Unflatten(1, (128,7,7)),
+    nn.ConvTranspose2d(128, 64, kernel_size=(4,4), stride=2, padding=1),
+    nn.ReLU(),
+    nn.BatchNorm1d(14*14*64),
+    nn.ConvTranspose2d(64, 1, kernel_size=(4,4), stride=2, padding=1), # (B, 1, 28, 28)
+    nn.Tanh(),
+    nn.Flatten()
+  )
   ############################################################################
   #                             END OF YOUR CODE                             #
   ############################################################################
