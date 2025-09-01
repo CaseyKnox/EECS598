@@ -210,15 +210,15 @@ def build_dc_classifier():
   # TODO: Implement build_dc_classifier.                                     #
   ############################################################################
   model = nn.Sequential(
-    nn.Unflatten(1, (1,28,28)),                  # (B, 1, 28, 28)
-    nn.Conv2d(1, 32, kernel_size=(5,5), stride=1),
+    nn.Unflatten(1, (1,28,28)),                    # (B, 1,  28, 28)
+    nn.Conv2d(1, 32, kernel_size=(5,5), stride=1), # (B, 32, 24, 24)
     nn.LeakyReLU(0.01),
-    nn.MaxPool2d((2,2), stride=2),               # (B, 32, 14, 14)
-    nn.Conv2d(32, 64, kernel_size=(5,5), stride=1),
+    nn.MaxPool2d((2,2), stride=2),                 # (B, 32, 12, 12)
+    nn.Conv2d(32, 64, kernel_size=(5,5), stride=1),# (B, 64, 8,  8)
     nn.LeakyReLU(0.01),
-    nn.MaxPool2d((2,2), stride=2),               # (B, 64, 7, 7)
+    nn.MaxPool2d((2,2), stride=2),                 # (B, 64, 4, 4)
     nn.Flatten(),
-    nn.Linear(7*7*64, 4*4*64),
+    nn.Linear(4*4*64, 4*4*64),
     nn.LeakyReLU(0.01),
     nn.Linear(4*4*64, 1)
   )
