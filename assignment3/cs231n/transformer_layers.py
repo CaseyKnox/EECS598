@@ -37,6 +37,22 @@ class PositionalEncoding(nn.Module):
         # less than 5 lines of code.                                               #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        a = torch.arange(0, max_len, 1)
+
+        # even numbers
+        b = torch.arange(0, max_len//2, 1) * 2 
+        b = torch.repeat_interleave(b, 2) # 0,0,2,2,4,4,...
+        d = max_len
+
+        # sin/cos argument is the same
+        c = a * 10000 ** (-b/d)
+
+        # Calculate a single row of sin and cos
+        sin = torch.sin(c) # (max_len,)
+        cos = torch.cos(c) # (max_len,)
+        sin_cos = torch.stack((sin,cos))  # (2,max_len)
+        pe_T = torch.tile(sin_cos, (embed_dim//2,1)) # (emb_dim, max_len)
+        pe = pe_T.T.unsqueeze(0) # (1, max_len, embed_dim)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -67,6 +83,8 @@ class PositionalEncoding(nn.Module):
         # afterward. This should only take a few lines of code.                    #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        output = x + self.pe
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
