@@ -92,6 +92,7 @@ class PositionalEncoding(nn.Module):
 
         assert S < self.max_len, f"Max sequence length is {self.max_len} < {S}"
         output = x + self.pe[:, :S]
+        output = self.dropout(output)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
