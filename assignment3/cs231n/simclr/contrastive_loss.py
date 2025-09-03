@@ -100,8 +100,8 @@ def sim_positive_pairs(out_left, out_right):
     ##############################################################################
     
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    l = out_left  / torch.linalg.norm(out_left,  dim=1, keepdim=True)
-    r = out_right / torch.linalg.norm(out_right, dim=1, keepdim=True)
+    l = out_left  / torch.linalg.norm(out_left,  dim=0, keepdim=True)
+    r = out_right / torch.linalg.norm(out_right, dim=0, keepdim=True)
     pos_pairs = l @ r.T                                    # (N, 1)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
