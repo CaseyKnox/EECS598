@@ -189,13 +189,9 @@ class MultiHeadAttention(nn.Module):
         
         # Apply masking
         if attn_mask is not None:
-          if attn_mask.shape == (T,S):
-            attn_mask = attn_mask.T
-          bad = (attn_mask == 0).to(torch.bool).to(similarities.device) # (S,T)
-          bad = bad.unsqueeze(0).unsqueeze(0)
-          similarities = similarities.masked_fill(bad, float('-inf'))
+          similarities = similarities.masked_fill(attn_mask==0, float('-inf'))
 
-        # Apply Softmask and calculate heads
+        # Apply Softmask, dropout, and calculate heads
         attn_weights = F.softmax(similarities, dim=-1) # (N, H, S, T)
         attn_weights = self.dropout(attn_weights)
         heads = torch.matmul(attn_weights, vh)         # (N, H, S, D/h)
