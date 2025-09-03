@@ -37,11 +37,17 @@ class PositionalEncoding(nn.Module):
         # less than 5 lines of code.                                               #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        self.max_len = max_len
+        self.embed_dim = embed_dim
+
+        # Create sin/cos argument
+        # 0,1,2,...,max_len
         a = torch.arange(0, max_len, 1)
 
         # even numbers
+        # 0,0,2,2,4,4,...,max_len/2
         b = torch.arange(0, max_len//2, 1) * 2 
-        b = torch.repeat_interleave(b, 2) # 0,0,2,2,4,4,...
+        b = torch.repeat_interleave(b, 2) 
         d = max_len
 
         # sin/cos argument is the same
@@ -53,10 +59,6 @@ class PositionalEncoding(nn.Module):
         sin_cos = torch.stack((sin,cos))  # (2,max_len)
         pe_T = torch.tile(sin_cos, (embed_dim//2,1)) # (emb_dim, max_len)
         pe = pe_T.T.unsqueeze(0) # (1, max_len, embed_dim)
-
-        print("Pe shape", pe.shape)
-        print("Max len", max_len)
-        print("embed_dim", embed_dim)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -88,9 +90,8 @@ class PositionalEncoding(nn.Module):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        print("x", x.shape)
-        print("pe", pe.shape)
-        output = x + self.pe
+        assert S < self.max_len, f"Max sequence length is {self.max_len} < {S}"
+        output = x + self.pe[:, :S]
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
