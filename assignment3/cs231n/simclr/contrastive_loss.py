@@ -66,7 +66,7 @@ def simclr_loss_naive(out_left, out_right, tau):
             if l != 2*k:
                 denom_r += torch.exp(sim(out_right[k], out[l]) / tau)
         
-        total_loss += -torch.log(numerator / denom_l) - torch.log(numerator / denom_r) 
+        total_loss += -torch.log(nume_l / denom_l) - torch.log(nume_r / denom_r) 
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
          ##############################################################################
