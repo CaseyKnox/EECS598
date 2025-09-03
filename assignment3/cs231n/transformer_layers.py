@@ -51,8 +51,8 @@ class PositionalEncoding(nn.Module):
 
         # Calculate a single row of sin and cos
         pe = torch.zeros(1, max_len, embed_dim)
-        pe[0, :, 0::2] = torch.sin(a * pows)
-        pe[0, :, 1::2] = torch.cos(a * pows)
+        pe[0, :, 0::2] = torch.sin(c)
+        pe[0, :, 1::2] = torch.cos(c)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
