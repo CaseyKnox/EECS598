@@ -40,25 +40,19 @@ class PositionalEncoding(nn.Module):
         self.max_len = max_len
         self.embed_dim = embed_dim
 
-        # Create sin/cos argument
-        # 0,1,2,...,max_len
-        a = torch.arange(0, max_len, 1)
+        a = torch.arange(0, max_len, 1)[:, None]
 
         # even numbers
-        # 0,0,2,2,4,4,...,max_len/2
-        b = torch.arange(0, max_len//2, 1) * 2 
-        b = torch.repeat_interleave(b, 2) 
-        d = max_len
+        b = torch.arange(0, embed_dim, 2)
 
         # sin/cos argument is the same
-        c = a * 10000 ** (-b/d)
+        pows = 10000 ** (-b/embed_dim)
+        c = a * pows
 
         # Calculate a single row of sin and cos
-        sin = torch.sin(c) # (max_len,)
-        cos = torch.cos(c) # (max_len,)
-        sin_cos = torch.stack((sin,cos))  # (2,max_len)
-        pe_T = torch.tile(sin_cos, (embed_dim//2,1)) # (emb_dim, max_len)
-        pe = pe_T.T.unsqueeze(0) # (1, max_len, embed_dim)
+        pe = torch.zeros(1, max_len, embed_dim)
+        pe[0, :, 0::2] = torch.sin(a * pows)
+        pe[0, :, 1::2] = torch.cos(a * pows)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
