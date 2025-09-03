@@ -195,7 +195,7 @@ class MultiHeadAttention(nn.Module):
 
         # Apply Softmask and calculate heads
         attn_weights = F.softmax(similarities, dim=-1) # (N, H, S, T)
-        attn_weights = self.dropout(attn_weights)
+        # attn_weights = self.dropout(attn_weights)
         heads = torch.matmul(attn_weights, vh)         # (N, H, S, D/h)
 
         output = heads.permute((0,2,1,3)).contiguous().view(N,S,D) # (N,S,D)
