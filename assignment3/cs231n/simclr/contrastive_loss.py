@@ -56,18 +56,18 @@ def simclr_loss_naive(out_left, out_right, tau):
         # Hint: Compute l(k, k+N) and l(k+N, k).                                     #
         ##############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        nume_l = torch.exp(sim(z_k, z_k_N) / tau)
-        nume_r = torch.exp(sim(z_k_N, z_k) / tau)
-        assert nume_l == nume_r
+
+        # Numerator is the same for sim(z_k, z_k_N) and sim(z_k_N, z_k)
+        numerator = torch.exp(sim(z_k, z_k_N) / tau)
         denom_l = 0
         denom_r = 0
         for l in range(2*N):
             if l != k:
-                denom_l += torch.exp(sim(out_left[k], out[l]) / tau)
+                denom_l += torch.exp(sim(z_k, out[l]) / tau)
             if l != 2*k:
-                denom_r += torch.exp(sim(out_right[k], out[l]) / tau)
+                denom_r += torch.exp(sim(z_k_N, out[l]) / tau)
         
-        total_loss += -torch.log(nume_l / denom_l) - torch.log(nume_r / denom_r) 
+        total_loss += -torch.log(numerator / denom_l) - torch.log(numerator / denom_r) 
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
          ##############################################################################
