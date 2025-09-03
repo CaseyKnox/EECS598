@@ -54,6 +54,10 @@ class PositionalEncoding(nn.Module):
         pe_T = torch.tile(sin_cos, (embed_dim//2,1)) # (emb_dim, max_len)
         pe = pe_T.T.unsqueeze(0) # (1, max_len, embed_dim)
 
+        print("Pe shape", pe.shape)
+        print("Max len", max_len)
+        print("embed_dim", embed_dim)
+
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -84,6 +88,8 @@ class PositionalEncoding(nn.Module):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        print("x", x.shape)
+        print("pe", pe.shape)
         output = x + self.pe
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
