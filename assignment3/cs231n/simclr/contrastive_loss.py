@@ -105,7 +105,7 @@ def sim_positive_pairs(out_left, out_right):
     norm_r = torch.linalg.norm(out_right, dim=1)       # (N,)
     norm = norm_l * norm_r
 
-    pos_pairs = torch.sum(out_left * out_right, dim=1) # (N, 1)
+    pos_pairs = torch.sum(out_left * out_right, dim=1, keepdim=True) # (N, 1)
     pos_pairs /= norm
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
