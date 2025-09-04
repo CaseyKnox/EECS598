@@ -169,10 +169,12 @@ def simclr_loss_vectorized(out_left, out_right, tau, device='cuda'):
     denom2N = torch.exp(sim_matrix / tau) # (2N, 2N)
     
     # Mask out terms where k=i.
-    denom2N.fill_diagonal_(0.)
+    # torch.fill_diagonal_() is not differentiable
+    mask = ~torch.eye(denom2N.size(0), dtype=torch.bool, device=denom2N.device)
+    denom2N_0 = denom2N * mask
     
     # Hint: Compute the denominator values for all augmented samples. This should be a 2N x 1 vector.
-    denominator = denom2N.sum(dim=1, keepdim=True) # (2N,1)
+    denominator = denom2N_0.sum(dim=1, keepdim=True) # (2N,1)
 
     # Step 2: Compute similarity between positive pairs.
     # You can do this in two ways: 
