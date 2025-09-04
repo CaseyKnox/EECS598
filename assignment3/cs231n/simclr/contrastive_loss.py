@@ -179,7 +179,8 @@ def simclr_loss_vectorized(out_left, out_right, tau, device='cuda'):
     # Option 1: Extract the corresponding indices from sim_matrix. 
     # Option 2: Use sim_positive_pairs().
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    similarity = torch.diagonal(sim_matrix, N).view(N,1)  # (N, 1)
+    # similarity = torch.diagonal(sim_matrix, N).view(N,1)  # (N, 1)
+    similarity = sim_positive_pairs(out_left, out_right)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     
