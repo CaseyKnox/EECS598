@@ -133,7 +133,11 @@ def compute_sim_matrix(out):
     ##############################################################################
     
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    NN, D = out.shape
+    norm = torch.linalg.norm(out, dim=1, keepdim=True) # (2N, 1)
+    out_norm = out / norm            # (2N, D)
 
+    sim_matrix = out_norm @ out_norm.T # (2N, 2N)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     
