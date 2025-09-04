@@ -191,8 +191,8 @@ def simclr_loss_vectorized(out_left, out_right, tau, device='cuda'):
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     
     # Step 4: Now that you have the numerator and denominator for all augmented samples, compute the total loss.
-    loss = -torch.log(numerator[:N] / denominator[:N])
-    loss += -torch.log(numerator[N:] / denominator[N:])
+    loss = -torch.log(numerator[:N] / denominator[:N]).sum()
+    loss += -torch.log(numerator[N:] / denominator[N:]).sum()
     loss /= 1 / (2 * N)
     
     ##############################################################################
