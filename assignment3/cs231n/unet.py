@@ -292,6 +292,30 @@ class Unet(nn.Module):
         #    - Make sure to pass the context to each ResNet block.
         ##################################################################
 
+        # 1. Downsampling
+        outputs = []
+        for block in self.downs:
+            if type(block) == type(ResnetBlock):
+                x = block.forward(x, context)  # (B,C,H,W)
+                outputs.append(x)
+            else:
+                block.forward(x)
+        
+        # 2. Mid blocks
+        x = self.mid_block1.forward(x, context)
+        x = self.mid_block2.forward(x, context)
+
+        # 3. Upsample
+        i = len(outputs)
+        for block in self.ups:
+            if type(block) == type(ResnetBlock):
+                i -= 1
+                # Concatenate residual along channel dim
+                x = torch.cat((outputs[i], x), dim=1) 
+                x = block.forward(x, context)
+            else:
+                block.forward(x)
+
         ##################################################################
 
         # Final block
