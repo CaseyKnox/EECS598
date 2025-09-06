@@ -211,8 +211,8 @@ class Unet(nn.Module):
             ##################################################################
             up_block = nn.ModuleList([
                 Block(dim_in, dim_out),
-                ResnetBlock(dim_out, dim_out, context_dim),
-                ResnetBlock(dim_out, dim_out, context_dim),
+                ResnetBlock(2*dim_out, dim_out, context_dim),
+                ResnetBlock(2*dim_out, dim_out, context_dim),
             ])
 
             self.ups.append(up_block)
