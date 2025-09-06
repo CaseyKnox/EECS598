@@ -182,8 +182,8 @@ class Unet(nn.Module):
             ##################################################################
             down_block = nn.ModuleList([
                 ResnetBlock(dim_in, dim_in, context_dim),
-                ResnetBlock(dim_in, dim_out, context_dim),
-                # Block(dim_in, dim_out)
+                ResnetBlock(dim_in, dim_in, context_dim),
+                Block(dim_in, dim_out)
             ])
 
             ##################################################################
