@@ -183,7 +183,7 @@ class Unet(nn.Module):
             down_block = nn.ModuleList([
                 ResnetBlock(dim_in, dim_in, context_dim),
                 ResnetBlock(dim_in, dim_in, context_dim),
-                Block(dim_in, dim_out)
+                Downsample(dim_in, dim_out)
             ])
 
             ##################################################################
@@ -210,7 +210,7 @@ class Unet(nn.Module):
             # channels at the input of both ResnetBlocks.
             ##################################################################
             up_block = nn.ModuleList([
-                Block(dim_in, dim_out),
+                Upsample(dim_in, dim_out),
                 ResnetBlock(2*dim_out, dim_out, context_dim),
                 ResnetBlock(2*dim_out, dim_out, context_dim),
             ])
