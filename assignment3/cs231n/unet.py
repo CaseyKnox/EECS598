@@ -1,5 +1,4 @@
 import copy
-from IPython.display import display_markdown
 from einops import rearrange
 from torch import einsum
 
@@ -182,12 +181,6 @@ class Unet(nn.Module):
             # load a pretrained checkpoint.
             ##################################################################
 
-            down_block = nn.ModuleList([
-                ResnetBlock(dim_in, dim_in, context_dim),
-                ResnetBlock(dim_in, dim_in, context_dim),
-                Downsample(dim_in, dim_out),
-            ])
-
             ##################################################################
             self.downs.append(down_block)
 
@@ -212,12 +205,6 @@ class Unet(nn.Module):
             # channels at the input of both ResnetBlocks.
             ##################################################################
 
-            up_block = nn.ModuleList([
-                Upsample(dim_in, dim_out),
-                ResnetBlock(2 * dim_out, dim_out, context_dim),
-                ResnetBlock(2 * dim_out, dim_out, context_dim),
-            ])
-
             self.ups.append(up_block)
             ##################################################################
 
@@ -239,10 +226,6 @@ class Unet(nn.Module):
         # You will have to call self.forward two times.
         # For unconditional sampling, pass None in`text_emb`.
         ##################################################################
-
-        x_cond = self.forward(x, time, model_kwargs)
-        x_uncond = self.forward(x, time, {**model_kwargs, "text_emb": None})
-        x = (1 + cfg_scale) * x_cond - cfg_scale * x_uncond
 
         ##################################################################
 
@@ -298,22 +281,6 @@ class Unet(nn.Module):
         #      skip connection from the downsampling path.
         #    - Make sure to pass the context to each ResNet block.
         ##################################################################
-
-        # Init downs
-        x_downs = []
-
-        for down_block in self.downs:
-            # Save the output of the :-1 blocks for residual connections
-            x_downs.append([x := b(x, context) for b in down_block[:-1]])
-            x = down_block[-1](x)
-
-        # Apply the middle blocks in sequence with given context
-        x = self.mid_block2(self.mid_block1(x, context), context)
-
-        for up_block, xs_down in zip(self.ups, reversed(x_downs)):
-            # Upsample, make residual input pairs, apply res-blocks
-            x, pairs = up_block[0](x), zip(up_block[1:], xs_down[::-1])
-            [x := b(torch.cat([x, x0], dim=1), context) for b, x0 in pairs]
 
         ##################################################################
 
