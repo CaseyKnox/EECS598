@@ -180,6 +180,11 @@ class Unet(nn.Module):
             # Make sure to exactly follow this structure of ModuleList in order to
             # load a pretrained checkpoint.
             ##################################################################
+            down_block = nn.ModuleList([
+                ResnetBlock(dim_in, dim_in, context_dim),
+                ResnetBlock(dim_in, dim_in, context_dim),
+                Block(dim_in, dim_out)
+            ])
 
             ##################################################################
             self.downs.append(down_block)
@@ -204,6 +209,11 @@ class Unet(nn.Module):
             # Don't forget to account for the skip connections by having 2 x dim_out
             # channels at the input of both ResnetBlocks.
             ##################################################################
+            up_block = nn.ModuleList([
+                Block(dim_in, dim_out),
+                ResnetBlock(dim_out, dim_out, context_dim),
+                ResnetBlock(dim_out, dim_out, context_dim),
+            ])
 
             self.ups.append(up_block)
             ##################################################################
