@@ -210,8 +210,8 @@ class Unet(nn.Module):
             # channels at the input of both ResnetBlocks.
             ##################################################################
             up_block = nn.ModuleList([
-                # Block(dim_in, dim_out),
-                ResnetBlock(2*dim_in, dim_out, context_dim),
+                Block(dim_in, dim_out),
+                ResnetBlock(2*dim_out, dim_out, context_dim),
                 ResnetBlock(2*dim_out, dim_out, context_dim),
             ])
 
