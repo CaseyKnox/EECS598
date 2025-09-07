@@ -298,7 +298,7 @@ class Unet(nn.Module):
         for block_list in self.downs:
             for block in block_list:
                 print(type(block).__name__)
-                if type(block).__name__ == ResnetBlock.__name__:
+                if isinstance(block, ResnetBlock):
                     x = block.forward(x, context)  # (B,C,H,W)
                     outputs.append(x)
                 else:
@@ -315,7 +315,7 @@ class Unet(nn.Module):
         for block_list in self.ups:
             for block in block_list:
                 print(type(block).__name__)
-                if type(block).__name__ == ResnetBlock.__name__:
+                if isinstance(block, ResnetBlock):
                     i -= 1
                     print(f"concatenating output {i}")
                     # Concatenate residual along channel dim
