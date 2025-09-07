@@ -301,7 +301,7 @@ class Unet(nn.Module):
                     x = block.forward(x, context)  # (B,C,H,W)
                     outputs.append(x)
                 else:
-                    block.forward(x)
+                    x = block.forward(x)
         
         # 2. Mid blocks
         x = self.mid_block1.forward(x, context)
@@ -317,7 +317,7 @@ class Unet(nn.Module):
                     x = torch.cat((outputs[i], x), dim=1) 
                     x = block.forward(x, context)
                 else:
-                    block.forward(x)
+                    x = block.forward(x)
 
         ##################################################################
 
