@@ -190,8 +190,8 @@ class GaussianDiffusion(nn.Module):
         x_0 = torch.clamp(x_0, min=-1, max=1)
 
         mu, std = self.q_posterior(x_0, x_t, t)
-        # x_tm1 = torch.normal(mu, std)
-        x_tm1 = mu + std * torch.randn_like(mu)
+        x_tm1 = torch.normal(mu, std)
+        # x_tm1 = mu + std * torch.randn_like(mu)
 
         ##################################################################
 
