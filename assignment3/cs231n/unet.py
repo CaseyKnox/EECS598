@@ -331,6 +331,7 @@ class Unet(nn.Module):
         # 1) Downsampling trace
         print("=== DOWN ===")
         skips = 0
+        outputs = []
         for li, block_list in enumerate(self.downs):
             for bi, block in enumerate(block_list):
                 before = _shape(x)
@@ -346,6 +347,7 @@ class Unet(nn.Module):
                 print(f"down[{li}][{bi}] {name:>16}  {before} -> {after}  ctx={took_ctx}")
                 if "ResnetBlock" in name:
                     skips += 1
+                    outputs.append(x2)
                 x = x2
 
         print(f"skip features saved (expected to match up resblocks): {skips}")
