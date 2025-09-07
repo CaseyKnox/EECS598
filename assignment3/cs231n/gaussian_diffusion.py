@@ -252,7 +252,7 @@ class GaussianDiffusion(nn.Module):
         ####################################################################
         x_t = self.q_sample(x_start, t, noise)
         y_pred = self.model(x_t, t, model_kwargs)
-        loss = (loss_weight * (y_pred - target)**2).sum() / b
+        loss = (loss_weight * (y_pred - target)**2).mean()
 
         ####################################################################
 
