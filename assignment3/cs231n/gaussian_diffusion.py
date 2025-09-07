@@ -251,11 +251,8 @@ class GaussianDiffusion(nn.Module):
         # Approximately 3-4 lines of code.
         ####################################################################
         x_t = self.q_sample(x_start, t, noise)
-        pred = self.model(x_t, t, model_kwargs)
-        sqerr = (pred - target)**2             # (b, C, H, W)
-        per_ex = sqerr.view(b, -1).mean(1)     # average over C,H,W  -> (b,)
-        loss = (loss_weight.squeeze() * per_ex).mean()   # weight per sample, then batch mean
-
+        y_pred = self.model(x_t, t, model_kwargs)
+        loss = (loss_weight * (y_pred - target)**2).mean()
 
         ####################################################################
 
