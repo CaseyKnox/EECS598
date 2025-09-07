@@ -321,7 +321,9 @@ class Unet(nn.Module):
                 if type(block).__name__ == type(ResnetBlock).__name__:
                     i -= 1
                     # Concatenate residual along channel dim
+                    print(f"    x shape (pre-cat)", x.shape)
                     x = torch.cat((outputs[i], x), dim=1) 
+                    print(f"    x shape (post-cat)", x.shape)
                     x = block.forward(x, context)
                 else:
                     x = block.forward(x)
