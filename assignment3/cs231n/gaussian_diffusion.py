@@ -182,7 +182,7 @@ class GaussianDiffusion(nn.Module):
         #      and sample x_{t-1}.
         ##################################################################
         y = self.model(x_t, t, model_kwargs)
-        if self.objective == "pred_x_start"
+        if self.objective == "pred_x_start":
             x_0 = y 
         else:
             x_0 = self.predict_start_from_noise(x_t, t, y)
