@@ -318,10 +318,10 @@ class Unet(nn.Module):
         for block_list in self.ups:
             for block in block_list:
                 print("block", type(block).__name__)
+                print(f"    x shape (pre-cat)", x.shape)
                 if type(block).__name__ == type(ResnetBlock).__name__:
                     i -= 1
                     # Concatenate residual along channel dim
-                    print(f"    x shape (pre-cat)", x.shape)
                     x = torch.cat((outputs[i], x), dim=1) 
                     print(f"    x shape (post-cat)", x.shape)
                     x = block.forward(x, context)
