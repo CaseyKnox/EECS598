@@ -294,6 +294,7 @@ class Unet(nn.Module):
 
         # 1. Downsampling
         outputs = []
+        print(f"Downsampling")
         for block_list in self.downs:
             for block in block_list:
                 print("block", type(block).__name__)
@@ -304,10 +305,12 @@ class Unet(nn.Module):
                     x = block.forward(x)
         
         # 2. Mid blocks
+        print(f"Mid blocks")
         x = self.mid_block1.forward(x, context)
         x = self.mid_block2.forward(x, context)
 
         # 3. Upsample
+        print(f"Upsampling")
         i = len(outputs)
         for block_list in self.ups:
             for block in block_list:
