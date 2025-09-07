@@ -299,15 +299,15 @@ class Unet(nn.Module):
             for block in block_list:
                 print(type(block).__name__)
                 if isinstance(block, ResnetBlock):
-                    x = block.forward(x, context)  # (B,C,H,W)
+                    x = block(x, context)  # (B,C,H,W)
                     outputs.append(x)
                 else:
-                    x = block.forward(x)
+                    x = block(x)
         
         # 2. Mid blocks
         print(f"Mid blocks")
-        x = self.mid_block1.forward(x, context)
-        x = self.mid_block2.forward(x, context)
+        x = self.mid_block1(x, context)
+        x = self.mid_block2(x, context)
 
         # 3. Upsample
         print(f"Upsampling")
@@ -320,9 +320,9 @@ class Unet(nn.Module):
                     print(f"concatenating output {i}")
                     # Concatenate residual along channel dim
                     x = torch.cat((x, outputs[i]), dim=1) 
-                    x = block.forward(x, context)
+                    x = block(x, context)
                 else:
-                    x = block.forward(x)
+                    x = block(x)
 
         ##################################################################
 
