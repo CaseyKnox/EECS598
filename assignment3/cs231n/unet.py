@@ -325,68 +325,21 @@ class Unet(nn.Module):
                 else:
                     x = block(x)
         """
-        def _shape(x): 
-            return tuple(x.shape)
+        # Init downs
+        x_downs = []
 
-        # 1) Downsampling trace
-        print("=== DOWN ===")
-        skips = 0
-        outputs = []
-        for li, block_list in enumerate(self.downs):
-            for bi, block in enumerate(block_list):
-                before = _shape(x)
-                try:
-                    # try passing context; fall back if block doesn't take it
-                    x2 = block(x, context)
-                    took_ctx = True
-                except TypeError:
-                    x2 = block(x)
-                    took_ctx = False
-                after = _shape(x2)
-                name = type(block).__name__
-                print(f"down[{li}][{bi}] {name:>16}  {before} -> {after}  ctx={took_ctx}")
-                if "ResnetBlock" in name:
-                    skips += 1
-                    outputs.append(x2)
-                x = x2
+        for down_block in self.downs:
+            # Save the output of the :-1 blocks for residual connections
+            x_downs.append([x := b(x, context) for b in down_block[:-1]])
+            x = down_block[-1](x)
 
-        print(f"skip features saved (expected to match up resblocks): {skips}")
+        # Apply the middle blocks in sequence with given context
+        x = self.mid_block2(self.mid_block1(x, context), context)
 
-        # 2) Middle
-        print("=== MID ===")
-        for j, blk in enumerate([self.mid_block1, self.mid_block2]):
-            before = _shape(x)
-            x = blk(x, context)
-            print(f"mid[{j}] ResnetBlock       {before} -> {_shape(x)} ctx=True")
-
-        # 3) Upsampling trace
-        print("=== UP ===")
-        consumed = 0
-        for li, block_list in enumerate(self.ups):
-            for bi, block in enumerate(block_list):
-                name = type(block).__name__
-                if "ResnetBlock" in name:
-                    consumed += 1
-                    # simulate the concat shape without mutating:
-                    # (we just want to see expected cat channels & H/W)
-                    print(f"up[{li}][{bi}] {name:>16}  will CONCAT with skip #{consumed}")
-                before = _shape(x)
-                try:
-                    if "ResnetBlock" in name:
-                        x = torch.cat([x, outputs[-consumed]], dim=1)
-                        x = block(x, context)
-                        took_ctx = True
-                    else:
-                        x = block(x)
-                        took_ctx = False
-                except TypeError:
-                    # if block unexpectedly doesn't take context
-                    x = block(x)
-                    took_ctx = False
-                after = _shape(x)
-                print(f"up[{li}][{bi}] {name:>16}  {before} -> {after}  ctx={'True' if 'ResnetBlock' in name else took_ctx}")
-
-        print(f"resnet ups that consumed skips: {consumed}")
+        for up_block, xs_down in zip(self.ups, reversed(x_downs)):
+            # Upsample, make residual input pairs, apply res-blocks
+            x, pairs = up_block[0](x), zip(up_block[1:], xs_down[::-1])
+            [x := b(torch.cat([x, x0], dim=1), context) for b, x0 in pairs]
 
 
         ##################################################################
