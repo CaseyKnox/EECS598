@@ -317,7 +317,7 @@ class Unet(nn.Module):
         i = len(outputs)
         for block_list in self.ups:
             for block in block_list:
-                print("block", type(block).__name__)
+                print("block", type(block).__name__, type(ResnetBlock).__name__)
                 print(f"    x shape (pre-cat)", x.shape)
                 if type(block).__name__ == type(ResnetBlock).__name__:
                     i -= 1
