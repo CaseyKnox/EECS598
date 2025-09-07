@@ -309,14 +309,15 @@ class Unet(nn.Module):
 
         # 3. Upsample
         i = len(outputs)
-        for block in self.ups:
-            if type(block).__name__ == type(ResnetBlock).__name__:
-                i -= 1
-                # Concatenate residual along channel dim
-                x = torch.cat((outputs[i], x), dim=1) 
-                x = block.forward(x, context)
-            else:
-                block.forward(x)
+        for block_list in self.ups:
+            for block in block_list:
+                if type(block).__name__ == type(ResnetBlock).__name__:
+                    i -= 1
+                    # Concatenate residual along channel dim
+                    x = torch.cat((outputs[i], x), dim=1) 
+                    x = block.forward(x, context)
+                else:
+                    block.forward(x)
 
         ##################################################################
 
