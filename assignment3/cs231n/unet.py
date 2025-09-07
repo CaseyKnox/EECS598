@@ -297,6 +297,7 @@ class Unet(nn.Module):
         print(f"Downsampling")
         for block_list in self.downs:
             for block in block_list:
+                print(block.__name__)
                 if type(block).__name__ == ResnetBlock.__name__:
                     x = block.forward(x, context)  # (B,C,H,W)
                     outputs.append(x)
@@ -313,6 +314,7 @@ class Unet(nn.Module):
         i = len(outputs)
         for block_list in self.ups:
             for block in block_list:
+                print(block.__name__)
                 if type(block).__name__ == ResnetBlock.__name__:
                     i -= 1
                     # Concatenate residual along channel dim
