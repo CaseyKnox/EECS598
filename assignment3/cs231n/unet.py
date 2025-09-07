@@ -293,10 +293,10 @@ class Unet(nn.Module):
         ##################################################################
         # 1. Downsampling
         outputs = []
-        print(f"Downsampling")
+        # print(f"Downsampling")
         for block_list in self.downs:
             for block in block_list:
-                print(type(block).__name__)
+                # print(type(block).__name__)
                 if isinstance(block, ResnetBlock):
                     x = block(x, context)  # (B,C,H,W)
                     outputs.append(x)
@@ -304,19 +304,19 @@ class Unet(nn.Module):
                     x = block(x)
         
         # 2. Mid blocks
-        print(f"Mid blocks")
+        # print(f"Mid blocks")
         x = self.mid_block1(x, context)
         x = self.mid_block2(x, context)
 
         # 3. Upsample
-        print(f"Upsampling")
+        # print(f"Upsampling")
         i = len(outputs)
         for block_list in self.ups:
             for block in block_list:
-                print(type(block).__name__)
+                # print(type(block).__name__)
                 if isinstance(block, ResnetBlock):
                     i -= 1
-                    print(f"concatenating output {i}")
+                    # print(f"concatenating output {i}")
                     # Concatenate residual along channel dim
                     x = torch.cat((x, outputs[i]), dim=1) 
                     x = block(x, context)
