@@ -250,6 +250,9 @@ class GaussianDiffusion(nn.Module):
         # Finally, compute the weighted MSE loss.
         # Approximately 3-4 lines of code.
         ####################################################################
+        y = self.q_sample(x_start, t, noise)
+        y_pred = self.model(x_start, t, model_kwargs)
+        loss = (loss_weight * (y - y_pred)**2).sum()
 
         ####################################################################
 
