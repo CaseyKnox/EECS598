@@ -236,6 +236,9 @@ class Unet(nn.Module):
         # You will have to call self.forward two times.
         # For unconditional sampling, pass None in`text_emb`.
         ##################################################################
+        x_t = self.forward(x, time, model_kwargs)
+        x_tt = self.forward(x, time, {"text_emb" : None})
+        x = (cfg_scale + 1) * x_t - cfg_scale * x_tt
 
         ##################################################################
 
