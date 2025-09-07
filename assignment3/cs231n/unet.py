@@ -297,7 +297,7 @@ class Unet(nn.Module):
         print(f"Downsampling")
         for block_list in self.downs:
             for block in block_list:
-                print("block", type(block).__name__)
+                print("block", type(block).__name__, type(ResnetBlock).__name__)
                 if type(block).__name__ == type(ResnetBlock).__name__:
                     x = block.forward(x, context)  # (B,C,H,W)
                     outputs.append(x)
