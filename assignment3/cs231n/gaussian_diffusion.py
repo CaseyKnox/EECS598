@@ -181,19 +181,17 @@ class GaussianDiffusion(nn.Module):
         #   4. Get the mean and std for q(x_{t-1} | x_t, x_0) using self.q_posterior,
         #      and sample x_{t-1}.
         ##################################################################
-        y_pred = self.model(x_t, t, model_kwargs)
-        if self.objective == "pred_noise":
-            noise = y_pred
-            x_0 = self.predict_start_from_noise(x_t, t, noise)
-        elif self.objective == "pred_x_start":
-            x_0 = y_pred
-            noise = self.predict_noise_from_start(x_t, t, x_0)
+        y = self.model(x_t, t, model_kwargs)
+        if self.objective == "pred_x_start"
+            x_0 = y 
         else:
-            raise ValueError(f"self.objective must be in [pred_noise|pred_x_start]")
+            x_0 = self.predict_start_from_noise(x_t, t, y)
+
         x_0 = torch.clamp(x_0, min=-1, max=1)
 
         mu, std = self.q_posterior(x_0, x_t, t)
         x_tm1 = torch.normal(mu, std)
+        # x_tm1 = mu + std * torch.randn_like(mu)
 
         ##################################################################
 
