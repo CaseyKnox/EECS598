@@ -297,37 +297,29 @@ class Unet(nn.Module):
         print(f"Downsampling")
         for block_list in self.downs:
             for block in block_list:
-                print("block", type(block).__name__, ResnetBlock.__name__)
                 if type(block).__name__ == ResnetBlock.__name__:
                     x = block.forward(x, context)  # (B,C,H,W)
                     outputs.append(x)
                 else:
                     x = block.forward(x)
-                print(f"    x shape", x.shape)
         
         # 2. Mid blocks
         print(f"Mid blocks")
         x = self.mid_block1.forward(x, context)
-        print(f"    x shape", x.shape)
         x = self.mid_block2.forward(x, context)
-        print(f"    x shape", x.shape)
 
         # 3. Upsample
         print(f"Upsampling")
         i = len(outputs)
         for block_list in self.ups:
             for block in block_list:
-                print("block", type(block).__name__, ResnetBlock.__name__)
-                print(f"    x shape (pre-cat)", x.shape)
                 if type(block).__name__ == ResnetBlock.__name__:
                     i -= 1
                     # Concatenate residual along channel dim
                     x = torch.cat((outputs[i], x), dim=1) 
-                    print(f"    x shape (post-cat)", x.shape)
                     x = block.forward(x, context)
                 else:
                     x = block.forward(x)
-                print(f"    x shape", x.shape)
 
         ##################################################################
 
