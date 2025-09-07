@@ -295,7 +295,8 @@ class Unet(nn.Module):
         # 1. Downsampling
         outputs = []
         for block in self.downs:
-            if type(block) == type(ResnetBlock):
+            print("block", type(block).__name__)
+            if type(block).__name__ == type(ResnetBlock).__name__:
                 x = block.forward(x, context)  # (B,C,H,W)
                 outputs.append(x)
             else:
@@ -308,7 +309,7 @@ class Unet(nn.Module):
         # 3. Upsample
         i = len(outputs)
         for block in self.ups:
-            if type(block) == type(ResnetBlock):
+            if type(block).__name__ == type(ResnetBlock).__name__:
                 i -= 1
                 # Concatenate residual along channel dim
                 x = torch.cat((outputs[i], x), dim=1) 
