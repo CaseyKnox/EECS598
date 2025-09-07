@@ -317,6 +317,7 @@ class Unet(nn.Module):
                 print(type(block).__name__)
                 if type(block).__name__ == ResnetBlock.__name__:
                     i -= 1
+                    print(f"concatenating output {i}")
                     # Concatenate residual along channel dim
                     x = torch.cat((x, outputs[i]), dim=1) 
                     x = block.forward(x, context)
