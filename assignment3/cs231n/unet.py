@@ -294,13 +294,14 @@ class Unet(nn.Module):
 
         # 1. Downsampling
         outputs = []
-        for block in self.downs:
-            print("block", type(block).__name__)
-            if type(block).__name__ == type(ResnetBlock).__name__:
-                x = block.forward(x, context)  # (B,C,H,W)
-                outputs.append(x)
-            else:
-                block.forward(x)
+        for block_list in self.downs:
+            for block in block_list:
+                print("block", type(block).__name__)
+                if type(block).__name__ == type(ResnetBlock).__name__:
+                    x = block.forward(x, context)  # (B,C,H,W)
+                    outputs.append(x)
+                else:
+                    block.forward(x)
         
         # 2. Mid blocks
         x = self.mid_block1.forward(x, context)
