@@ -6,7 +6,6 @@ import clip
 from PIL import Image
 import tensorflow_datasets as tfds
 from torchvision import transforms as T
-import torch.nn.functional as F
 import cv2
 from tqdm.auto import tqdm
 
@@ -80,7 +79,23 @@ def clip_zero_shot_classifier(clip_model, clip_preprocess, images,
     ############################################################################
     # TODO: Find the class labels for images.                                  #
     ############################################################################
+    # Get Text Features
+    text_tokens = clip.tokenize(class_texts).to(device)
+    text_features = clip_model.encode_text(text_tokens)       # (T, D)
 
+    # Get image features
+    preproc_imgs = [
+        clip_preprocess(Image.fromarray(img)).unsqueeze(0) 
+        for img in images
+    ]
+    image_tensor = torch.cat(preproc_imgs).to(device)        # (B, C, H, W)
+    image_features = clip_model.encode_images(image_tensor) # (B, D)
+
+    similarity = get_similarity_no_loop(text_features, image_features) # (T, B)
+    pred = torch.max(similarity, dim=0)                        # (B,)
+    pred_classes = [
+        class_texts[i] for i in pred
+    ]
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
