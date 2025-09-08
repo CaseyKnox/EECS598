@@ -6,6 +6,7 @@ import clip
 from PIL import Image
 import tensorflow_datasets as tfds
 from torchvision import transforms as T
+import torch.nn.functional as F
 import cv2
 from tqdm.auto import tqdm
 
@@ -26,7 +27,8 @@ def get_similarity_no_loop(text_features, image_features):
     ############################################################################
     # TODO: Compute the cosine similarity. Do NOT use for loops.               #
     ############################################################################
-    similarity = text_features @ image_features.T # (N, M)
+    similarity = F.cosine_similarity(text_features, image_features)
+    # similarity = text_features @ image_features.T # (N, M)
 
     ############################################################################
     #                             END OF YOUR CODE                             #
