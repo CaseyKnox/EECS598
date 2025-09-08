@@ -27,7 +27,16 @@ def get_similarity_no_loop(text_features, image_features):
     ############################################################################
     # TODO: Compute the cosine similarity. Do NOT use for loops.               #
     ############################################################################
-    similarity = F.cosine_similarity(text_features, image_features)
+    nume = text_features @ image_features.T       # (N,M)
+    t_n = torch.norm(text_features, dim=1).unsqueeze(1) # (N,1)
+    i_n = torch.norm(image_features, dim=1).unsqueeze(0) # (1,M)
+    denom = t_n @ i_n # (N, M)
+
+    # minimum value is eps
+    eps = 1e-8
+    denom[denom < eps] = eps
+    similarity = nume / denom
+
     # similarity = text_features @ image_features.T # (N, M)
 
     ############################################################################
