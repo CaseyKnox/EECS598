@@ -123,6 +123,16 @@ class CLIPImageRetriever:
         # computation for each text query. You may end up NOT using the above      #
         # similarity function for most compute-optimal implementation.#
         ############################################################################
+        self.clip_model = clip_model
+        self.clip_preprocess = clip_preprocess
+        self.device = device
+        self.images = images
+        img_preproc = [
+            clip_preprocess(Image.fromarray(img)).unsqueeze(0)
+            for img in images
+        ]
+        img_tensor = torch.cat(img_preproc, dim=0).to(device) # (B,C,H,W)
+        self.image_feats = clip_model.encode_image(img_tensor) # (B, D)
 
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -146,6 +156,10 @@ class CLIPImageRetriever:
         ############################################################################
         # TODO: Retrieve the indices of top-k images.                              #
         ############################################################################
+        tokens = clip.tokenize(query).to(self.device)
+        text_feats = self.clip_model.encode_text(tokens) # (1, D)
+        similarity = get_similarity_no_loop(text_feats, self.image_feats).squeeze()
+        top_indices = list(similarity.topk(k).indices)
 
         ############################################################################
         #                             END OF YOUR CODE                             #
