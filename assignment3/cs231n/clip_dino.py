@@ -89,7 +89,7 @@ def clip_zero_shot_classifier(clip_model, clip_preprocess, images,
         for img in images
     ]
     image_tensor = torch.cat(preproc_imgs).to(device)        # (B, C, H, W)
-    image_features = clip_model.encode_images(image_tensor) # (B, D)
+    image_features = clip_model.encode_image(image_tensor) # (B, D)
 
     similarity = get_similarity_no_loop(text_features, image_features) # (T, B)
     pred = torch.max(similarity, dim=0)                        # (B,)
