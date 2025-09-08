@@ -318,6 +318,13 @@ class DINOSegmentation:
             loss.backward()
             self.optim.step()
 
+            # Print progress every 100 iterations
+            if (i + 1) % 100 == 0 or i == 0:
+                print(f"Iteration {i + 1}/{num_iters}, Loss: {loss.item():.4f}")
+
+        # Print final loss after training
+        print(f"Training completed. Final Loss: {loss.item():.4f}")
+
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
