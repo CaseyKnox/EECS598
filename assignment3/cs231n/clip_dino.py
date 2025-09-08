@@ -338,7 +338,7 @@ class DINOSegmentation:
         # TODO: Train your model for `num_iters` steps.                            #
         ############################################################################
         y = self.model(X_test) # (N, C)
-        pred_classes = torch.max(y).indices
+        pred_classes = torch.max(y).indices()
 
         ############################################################################
         #                             END OF YOUR CODE                             #
