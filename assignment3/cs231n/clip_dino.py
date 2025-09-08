@@ -95,7 +95,7 @@ def clip_zero_shot_classifier(clip_model, clip_preprocess, images,
     pred = torch.max(similarity, dim=0)                        # (B,)
     print(pred)
     pred_classes = [
-        class_texts[i.item()] for i in pred
+        class_texts[i] for i in pred.indices
     ]
     ############################################################################
     #                             END OF YOUR CODE                             #
