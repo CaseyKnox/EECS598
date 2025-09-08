@@ -277,6 +277,20 @@ class DINOSegmentation:
         # function to train classify each DINO feature vector into a seg. class.   #
         # It can be a linear layer or two layer neural network.                    #
         ############################################################################
+        self.device = device
+        self.n_classes = num_classes
+        self.in_dim = inp_dim
+
+        self.model = nn.Sequential(
+            nn.Linear(inp_dim, inp_dim),
+            nn.ReLU(),
+            nn.Linear(inp_dim, num_classes),
+        )
+        self.optim = torch.optim.Adam(
+            self.model.parameters(),
+            lr=1e-3
+        )
+        self.loss = nn.CrossEntropyLoss()
 
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -294,6 +308,13 @@ class DINOSegmentation:
         ############################################################################
         # TODO: Train your model for `num_iters` steps.                            #
         ############################################################################
+        for i in range(num_iters):
+            y_pred = self.model.forward(X_train)
+            loss = self.loss(y_pred, Y_train)
+            
+            self.optim.zero_grad()
+            loss.backward()
+            self.optim.step()
 
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -314,6 +335,8 @@ class DINOSegmentation:
         ############################################################################
         # TODO: Train your model for `num_iters` steps.                            #
         ############################################################################
+        y = self.model(X_test) # (N, C)
+        pred_classes = torch.max(y).indices
 
         ############################################################################
         #                             END OF YOUR CODE                             #
