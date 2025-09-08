@@ -26,6 +26,7 @@ def get_similarity_no_loop(text_features, image_features):
     ############################################################################
     # TODO: Compute the cosine similarity. Do NOT use for loops.               #
     ############################################################################
+    similarity = text_features @ image_features.T # (N, M)
 
     ############################################################################
     #                             END OF YOUR CODE                             #
